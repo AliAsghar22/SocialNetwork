@@ -44,7 +44,7 @@ public class Serial {
         this.name = name;
     }
 
-    public boolean save(GraphDatabaseService db) {
+    public Node save(GraphDatabaseService db) {
         try (Transaction tx = db.beginTx()) {
             Node n = loadByName(this.getName(), db).getNode();
             if (n == null) {
@@ -55,10 +55,10 @@ public class Serial {
             n.addLabel(Types.SERIAL);
             tx.success();
             tx.close();
-            return true;
+            return n;
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
 

@@ -44,7 +44,7 @@ public class Film {
         this.node = node;
     }
 
-    public boolean save(GraphDatabaseService db){
+    public Node save(GraphDatabaseService db){
         try(Transaction tx = db.beginTx()){
             Node n = loadByName(this.getName(), db).getNode();
             if (n == null) {
@@ -55,10 +55,10 @@ public class Film {
             n.addLabel(Types.FILM);
             tx.success();
             tx.close();
-            return true;
+            return n;
         }catch (Exception e){
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
 

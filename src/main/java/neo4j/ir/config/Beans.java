@@ -17,7 +17,7 @@ public class Beans {
     @Bean
     public GraphDatabaseService graphDatabaseService(){
         GraphDatabaseFactory dbFactory = new GraphDatabaseFactory();
-        return dbFactory.newEmbeddedDatabase(new File("E:\\neoDB"));
+        return dbFactory.newEmbeddedDatabase(new File("neoDB"));
     }
 
     @Bean

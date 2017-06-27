@@ -74,7 +74,7 @@ public class User {
         this.node = node;
     }
 
-    public boolean save(GraphDatabaseService db) {
+    public Node save(GraphDatabaseService db) {
         try (Transaction tx = db.beginTx()) {
             Node n = loadByUserName(this.getUserName(), db).getNode();
             if (n == null) {
@@ -88,11 +88,12 @@ public class User {
             n.addLabel(Types.USER);
             tx.success();
             tx.close();
-            return true;
+            return n;
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
         }
+
+        return null;
     }
 
 
