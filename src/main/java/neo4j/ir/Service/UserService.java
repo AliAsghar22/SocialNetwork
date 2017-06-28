@@ -3,7 +3,6 @@ package neo4j.ir.Service;
 import neo4j.ir.nodes.Types;
 import neo4j.ir.nodes.User;
 import org.neo4j.graphdb.*;
-import org.neo4j.server.rest.repr.BadInputException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +22,7 @@ public class UserService {
     public Node add(User newUser) {
         try (Transaction tx = db.beginTx()) {
             if(getNode(newUser.getUserName()) != null){
-                throw new BadInputException("This user already exits");
+                throw new Exception("This user already exits");
             }
             Node node = db.createNode();
             convertToNode(node, newUser);
@@ -41,7 +40,7 @@ public class UserService {
             //check to see if user already exists
             Node oldNode = getNode(newUser.getUserName());
             if(oldNode == null)
-                throw new NoSuchObjectException("This user doesn't exits");
+                throw new Exception("This user doesn't exits");
             convertToNode(oldNode, newUser);
             tx.success();
             tx.close();
