@@ -19,79 +19,48 @@ public class UserService {
     @Autowired
     GraphDatabaseService db;
 
-    public Node add(User newUser) {
-        try (Transaction tx = db.beginTx()) {
-            if(getNode(newUser.getUserName()) != null){
-                throw new Exception("This user already exits");
-            }
-            Node node = db.createNode();
-            convertToNode(node, newUser);
-            tx.success();
-            tx.close();
-            return node;
-        } catch (Exception e) {
-            e.printStackTrace();
+    public Node add(User newUser) throws Exception {
+        if (getNode(newUser.getUserName()) != null) {
+            throw new Exception("This user already exits");
         }
-        return null;
+        Node node = db.createNode();
+        convertToNode(node, newUser);
+        return node;
     }
 
-    public User update(User newUser){
-        try (Transaction tx = db.beginTx()) {
-            //check to see if user already exists
-            Node oldNode = getNode(newUser.getUserName());
-            if(oldNode == null)
-                throw new Exception("This user doesn't exits");
-            convertToNode(oldNode, newUser);
-            tx.success();
-            tx.close();
-            return newUser;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+    public User update(User newUser) throws Exception {
+        Node oldNode = getNode(newUser.getUserName());
+        if (oldNode == null)
+            throw new Exception("This user doesn't exits");
+        convertToNode(oldNode, newUser);
+        return newUser;
     }
 
-    public List<User> getAllUsers(){
-        try (Transaction tx = db.beginTx()) {
-            ResourceIterator<Node> nodes = db.findNodes(Types.USER);
-            List<User> users = new ArrayList<>();
-            while (nodes.hasNext()){
-                Node n = nodes.next();
-                users.add(convertToUser(n));
-            }
-            tx.success();
-            return users;
-        } catch (Exception e) {
-            e.printStackTrace();
+    public List<User> getAllUsers() {
+        ResourceIterator<Node> nodes = db.findNodes(Types.USER);
+        List<User> users = new ArrayList<>();
+        while (nodes.hasNext()) {
+            Node n = nodes.next();
+            users.add(convertToUser(n));
         }
-        return null;
+
+        return users;
     }
 
-    public Node getNode(String userName){
-        try (Transaction tx = db.beginTx()) {
-            Node me = db.findNode(Types.USER, "userName", userName);
-            System.out.println(me);
-            System.out.println(userName);
-            tx.success();
-            return me;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+    public Node getNode(String userName) {
+        return db.findNode(Types.USER, "userName", userName);
     }
 
-    private User convertToUser(Node n){
-        Transaction tx = db.beginTx();
+    private User convertToUser(Node n) {
         User user = new User();
-        user.setFirstName((String)n.getProperty("firstName"));
+        user.setFirstName((String) n.getProperty("firstName"));
         user.setLastName((String) n.getProperty("lastName"));
         user.setUserName((String) n.getProperty("userName"));
         user.setPassword(((String) n.getProperty("password")));
-        tx.success();
         return user;
     }
 
-    private void convertToNode(Node n, User u){
+    private void convertToNode(Node n, User u) {
         n.setProperty("userName", u.getUserName());
         n.setProperty("password", u.getPassword());
         n.setProperty("firstName", u.getFirstName());
@@ -100,31 +69,30 @@ public class UserService {
         n.addLabel(Types.USER);
     }
 
-    public User getUser(String userName){
+    public User getUser(String userName) {
+        Transaction tx = db.beginTx();
         Node n = getNode(userName);
-        if(n != null){
-            return convertToUser(n);
+        if (n != null) {
+            User u = convertToUser(n);
+            tx.success();
+            return u;
         }
+        tx.success();
         return null;
     }
 
     public List<User> getFriendsList(String currentUser) {
-        Transaction tx = db.beginTx();
         Node current = getNode(currentUser);
         List<User> friends = new ArrayList<>();
-        for (Relationship r: current.getRelationships(RelationshipTypes.IS_FRIEND)) {
+        for (Relationship r : current.getRelationships(RelationshipTypes.IS_FRIEND)) {
             friends.add(convertToUser(r.getOtherNode(current)));
         }
-        tx.success();
         return friends;
     }
 
     public void createRelationToUser(String currentUser, String userName) {
-        Transaction tx = db.beginTx();
         Node current = getNode(currentUser);
         Node friend = getNode(userName);
         current.createRelationshipTo(friend, RelationshipTypes.IS_FRIEND);
-        tx.success();
-        tx.close();
     }
 }
