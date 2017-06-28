@@ -70,6 +70,8 @@ public class UserService {
     public Node getNode(String userName){
         try (Transaction tx = db.beginTx()) {
             Node me = db.findNode(Types.USER, "userName", userName);
+            System.out.println(me);
+            System.out.println(userName);
             tx.success();
             return me;
         } catch (Exception e) {
@@ -118,9 +120,9 @@ public class UserService {
     }
 
     public void createRelationToUser(String currentUser, String userName) {
+        Transaction tx = db.beginTx();
         Node current = getNode(currentUser);
         Node friend = getNode(userName);
-        Transaction tx = db.beginTx();
         current.createRelationshipTo(friend, RelationshipTypes.IS_FRIEND);
         tx.success();
         tx.close();

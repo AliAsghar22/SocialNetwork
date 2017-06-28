@@ -3,8 +3,6 @@ package neo4j.ir.web;
 import neo4j.ir.Service.CommentService;
 import neo4j.ir.Service.SecurityHelper;
 import neo4j.ir.Service.UserService;
-import neo4j.ir.nodes.RelationshipTypes;
-import neo4j.ir.nodes.User;
 import neo4j.ir.web.dto.CommentDTO;
 import org.neo4j.graphdb.*;
 import org.springframework.beans.factory.annotation.Autowired;

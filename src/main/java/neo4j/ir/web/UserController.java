@@ -52,8 +52,8 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    @GetMapping("/addFriendship")
-    public ResponseEntity addRelation(@RequestParam("userName") String userName){
+    @PostMapping("/addFriendship")
+    public ResponseEntity addRelation(@RequestBody String userName){
         String currentUser = securityHelper.getCurrentUserUserName();
         userService.createRelationToUser(currentUser, userName);
         return ResponseEntity.ok("created relation");
