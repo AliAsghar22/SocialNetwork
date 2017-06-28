@@ -37,7 +37,7 @@ public class UserController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity addUser(@RequestBody User user) {
+    public ResponseEntity addUser(User user) {
         try{
             userService.add(user);
             return ResponseEntity.ok("user added successfully");

@@ -14,7 +14,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
  */
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter{
     private UserDetailsService userDetailsService;
 
@@ -25,14 +24,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests().antMatchers("/**").access("hasRole('USER')")
-        .and().formLogin().defaultSuccessUrl("/index").permitAll()
-        .and().logout().permitAll()
-        .and().csrf().disable();
+
+        http    .formLogin().and()
+                .authorizeRequests().antMatchers("/user/add","/register.html").permitAll()
+                .anyRequest().authenticated()
+                .and().csrf().disable();
     }
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication().withUser("user").password("pass").roles("USER");
+        auth.userDetailsService(userDetailsService);
     }
     @Override
     public UserDetailsService userDetailsServiceBean() throws Exception {

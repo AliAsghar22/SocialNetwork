@@ -6,7 +6,6 @@ import org.neo4j.graphdb.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.rmi.NoSuchObjectException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,7 +77,7 @@ public class UserService {
         return null;
     }
 
-    public User convertToUser(Node n){
+    private User convertToUser(Node n){
         User user = new User();
         user.setFirstName((String)n.getProperty("firstName"));
         user.setLastName((String) n.getProperty("lastName"));
@@ -87,7 +86,7 @@ public class UserService {
         return user;
     }
 
-    public void convertToNode(Node n, User u){
+    private void convertToNode(Node n, User u){
         n.setProperty("userName", u.getUserName());
         n.setProperty("password", u.getPassword());
         n.setProperty("firstName", u.getFirstName());
@@ -97,6 +96,7 @@ public class UserService {
     }
 
     public User getUser(String userName){
+        Transaction tx = db.beginTx();
         Node n = getNode(userName);
         if(n != null){
             return convertToUser(n);
