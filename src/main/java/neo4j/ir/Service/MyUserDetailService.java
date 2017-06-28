@@ -1,7 +1,6 @@
-package neo4j.ir.config;
+package neo4j.ir.Service;
 
 import neo4j.ir.nodes.User;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,16 +13,13 @@ import java.util.Collections;
  * Created by Ali Asghar on 27/06/2017.
  */
 public class MyUserDetailService implements UserDetailsService {
-    private GraphDatabaseService db;
 
     @Autowired
-    public MyUserDetailService(GraphDatabaseService graphDatabaseService) {
-        this.db = graphDatabaseService;
-    }
+    private UserService userService;
 
     @Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
-        User user = User.loadByUserName(userName, db);
+        User user = userService.getUser(userName);
         if (user == null)
             return null;
         return new org.springframework.security.core.userdetails.User(user.getUserName(), user.getPassword()

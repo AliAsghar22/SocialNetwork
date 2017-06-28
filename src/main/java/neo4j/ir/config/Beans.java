@@ -1,5 +1,6 @@
 package neo4j.ir.config;
 
+import neo4j.ir.Service.MyUserDetailService;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +23,6 @@ public class Beans {
 
     @Bean
     public UserDetailsService userDetailsService(){
-        return new MyUserDetailService(graphDatabaseService());
+        return new MyUserDetailService();
     }
 }
