@@ -1,15 +1,13 @@
 package neo4j.ir.web;
 
+import neo4j.ir.Service.SecurityHelper;
 import neo4j.ir.Service.UserService;
 import neo4j.ir.nodes.User;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -25,6 +23,9 @@ public class UserController {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    SecurityHelper securityHelper;
 
     @PostMapping("/edit")
     public ResponseEntity editUser(@RequestBody User user) {
@@ -49,6 +50,20 @@ public class UserController {
     @GetMapping("/list")
     public ResponseEntity<List> getOfUsers(){
         return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+    @GetMapping("/addFriendship")
+    public ResponseEntity addRelation(@RequestParam("userName") String userName){
+        String currentUser = securityHelper.getCurrentUserUserName();
+        userService.createRelationToUser(currentUser, userName);
+        return ResponseEntity.ok("created relation");
+    }
+
+    @GetMapping("/friendList")
+    public ResponseEntity getFriendList(){
+        String currentUser = securityHelper.getCurrentUserUserName();
+        List<User> friends = userService.getFriendsList(currentUser);
+        return ResponseEntity.ok(friends);
     }
 
 }

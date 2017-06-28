@@ -1,5 +1,6 @@
 package neo4j.ir.Service;
 
+import neo4j.ir.nodes.RelationshipTypes;
 import neo4j.ir.nodes.Types;
 import neo4j.ir.nodes.User;
 import org.neo4j.graphdb.*;
@@ -78,11 +79,13 @@ public class UserService {
     }
 
     private User convertToUser(Node n){
+        Transaction tx = db.beginTx();
         User user = new User();
         user.setFirstName((String)n.getProperty("firstName"));
         user.setLastName((String) n.getProperty("lastName"));
         user.setUserName((String) n.getProperty("userName"));
         user.setPassword(((String) n.getProperty("password")));
+        tx.success();
         return user;
     }
 
@@ -96,7 +99,6 @@ public class UserService {
     }
 
     public User getUser(String userName){
-        Transaction tx = db.beginTx();
         Node n = getNode(userName);
         if(n != null){
             return convertToUser(n);
@@ -104,4 +106,23 @@ public class UserService {
         return null;
     }
 
+    public List<User> getFriendsList(String currentUser) {
+        Transaction tx = db.beginTx();
+        Node current = getNode(currentUser);
+        List<User> friends = new ArrayList<>();
+        for (Relationship r: current.getRelationships(RelationshipTypes.IS_FRIEND)) {
+            friends.add(convertToUser(r.getOtherNode(current)));
+        }
+        tx.success();
+        return friends;
+    }
+
+    public void createRelationToUser(String currentUser, String userName) {
+        Node current = getNode(currentUser);
+        Node friend = getNode(userName);
+        Transaction tx = db.beginTx();
+        current.createRelationshipTo(friend, RelationshipTypes.IS_FRIEND);
+        tx.success();
+        tx.close();
+    }
 }
