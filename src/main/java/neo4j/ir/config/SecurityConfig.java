@@ -2,7 +2,6 @@ package neo4j.ir.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -14,10 +13,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter{
-    private UserDetailsService userDetailsService;
+
+    private final UserDetailsService userDetailsService;
 
     @Autowired
-    public void setUserDetailsService(UserDetailsService userDetailsService) {
+    public SecurityConfig(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
@@ -28,11 +28,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
         .and().logout().permitAll()
         .and().csrf().disable();
     }
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication().withUser("user").password("pass").roles("USER");
-        auth.userDetailsService(userDetailsService);
-    }
+//    @Autowired
+//    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+//        auth.inMemoryAuthentication().withUser("user").password("pass").roles("USER");
+//    }
     @Override
     public UserDetailsService userDetailsServiceBean() throws Exception {
         return userDetailsService;

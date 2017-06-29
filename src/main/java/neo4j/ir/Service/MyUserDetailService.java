@@ -1,27 +1,23 @@
 package neo4j.ir.Service;
 
 import neo4j.ir.nodes.User;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 
 /**
  * Created by Ali Asghar on 27/06/2017.
  */
-@Service
+
 public class MyUserDetailService implements UserDetailsService {
 
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private GraphDatabaseService db;
 
     @Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {

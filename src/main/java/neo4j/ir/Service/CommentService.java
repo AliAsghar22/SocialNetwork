@@ -1,8 +1,6 @@
 package neo4j.ir.Service;
 
 import neo4j.ir.nodes.RelationshipTypes;
-import neo4j.ir.nodes.Types;
-import neo4j.ir.nodes.User;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;

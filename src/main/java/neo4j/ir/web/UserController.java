@@ -2,6 +2,7 @@ package neo4j.ir.web;
 
 import neo4j.ir.Service.SecurityHelper;
 import neo4j.ir.Service.UserService;
+import neo4j.ir.nodes.Film;
 import neo4j.ir.nodes.User;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
@@ -87,6 +88,15 @@ public class UserController {
         tx.success();
         tx.close();
         return ResponseEntity.ok(friends);
+    }
+
+    @GetMapping("/page")
+    public ResponseEntity getUserPage(){
+        Transaction tx = db.beginTx();
+        List<Film> films = userService.getRelatedFilms(securityHelper.getCurrentUserUserName());
+        tx.success();
+        tx.close();
+        return ResponseEntity.ok(films);
     }
 
 }

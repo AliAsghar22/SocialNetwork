@@ -6,5 +6,5 @@ import org.neo4j.graphdb.RelationshipType;
  * Created by Ali Asghar on 27/06/2017.
  */
 public enum  RelationshipTypes implements RelationshipType{
-    HAS_SEEN, IS_FRIEND,COMMENTED
+    HAS_SEEN, IS_FRIEND,COMMENTED, SCORED
 }

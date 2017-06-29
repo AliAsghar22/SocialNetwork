@@ -1,31 +1,43 @@
 package neo4j.ir.Service;
 
+import neo4j.ir.nodes.Film;
 import neo4j.ir.nodes.RelationshipTypes;
 import neo4j.ir.nodes.Types;
 import neo4j.ir.nodes.User;
 import org.neo4j.graphdb.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
  * Created by Ali Asghar on 28/06/2017.
  */
+
 @Service
+@Component
 public class UserService {
 
-    @Autowired
-    GraphDatabaseService db;
+    private final GraphDatabaseService db;
 
-    public Node add(User newUser) throws Exception {
+    private final FilmService filmService;
+
+    @Autowired
+    public UserService(GraphDatabaseService db, FilmService filmService) {
+        this.db = db;
+        this.filmService = filmService;
+    }
+
+
+    public void add(User newUser) throws Exception {
         if (getNode(newUser.getUserName()) != null) {
             throw new Exception("This user already exits");
         }
         Node node = db.createNode();
         convertToNode(node, newUser);
-        return node;
     }
 
     public User update(User newUser) throws Exception {
@@ -94,5 +106,16 @@ public class UserService {
         Node current = getNode(currentUser);
         Node friend = getNode(userName);
         current.createRelationshipTo(friend, RelationshipTypes.IS_FRIEND);
+    }
+
+    public List<Film> getRelatedFilms(String user) {
+        Node n = getNode(user);
+        Iterator<Relationship> it = n.getRelationships(RelationshipTypes.COMMENTED, RelationshipTypes.SCORED).iterator();
+        List<Film> films = new ArrayList<>();
+        while (it.hasNext()){
+            Relationship r = it.next();
+            films.add(filmService.convertToFilm(r.getOtherNode(n)));
+        }
+        return films;
     }
 }

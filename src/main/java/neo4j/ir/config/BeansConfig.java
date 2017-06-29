@@ -14,7 +14,12 @@ import java.io.File;
  * Created by Ali Asghar on 27/06/2017.
  */
 @Configuration
-public class Beans {
+public class BeansConfig {
+
+    @Bean("userDetailsService")
+    public UserDetailsService getUserDetailsService(){
+        return new MyUserDetailService();
+    }
 
     @Bean
     public GraphDatabaseService graphDatabaseService(){
@@ -24,8 +29,4 @@ public class Beans {
         return db;
     }
 
-    @Bean
-    public static UserDetailsService userDetailsService(){
-        return new MyUserDetailService();
-    }
 }

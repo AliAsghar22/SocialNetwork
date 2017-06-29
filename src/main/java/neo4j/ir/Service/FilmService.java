@@ -1,15 +1,13 @@
 package neo4j.ir.Service;
 
+import neo4j.ir.nodes.Film;
 import neo4j.ir.nodes.Types;
-import neo4j.ir.nodes.User;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
-import org.neo4j.graphdb.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.xml.ws.ServiceMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,91 +16,61 @@ import java.util.List;
  */
 @Service
 public class FilmService {
+
     @Autowired
     GraphDatabaseService db;
 
-//    public Node add(User newUser) {
-//        try (Transaction tx = db.beginTx()) {
-//            if(getNode(newUser.getUserName()) != null){
-//                throw new Exception("This user already exits");
-//            }
-//            Node node = db.createNode();
-//            convertToNode(node, newUser);
-//            tx.success();
-//            tx.close();
-//            return node;
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
-//
-//    public User update(User newUser){
-//        try (Transaction tx = db.beginTx()) {
-//            //check to see if user already exists
-//            Node oldNode = getNode(newUser.getUserName());
-//            if(oldNode == null)
-//                throw new Exception("This user doesn't exits");
-//            convertToNode(oldNode, newUser);
-//            tx.success();
-//            tx.close();
-//            return newUser;
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
-//
-//    public List<User> getAllUsers(){
-//        try (Transaction tx = db.beginTx()) {
-//            ResourceIterator<Node> nodes = db.findNodes(Types.USER);
-//            List<User> users = new ArrayList<>();
-//            while (nodes.hasNext()){
-//                Node n = nodes.next();
-//                users.add(convertToUser(n));
-//            }
-//            tx.success();
-//            return users;
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
+    public Node add(Film film) throws Exception {
+        if (getNode(film.getName()) != null) {
+            throw new Exception("This user already exits");
+        }
+        Node node = db.createNode();
+        convertToNode(node, film);
+        return node;
+    }
 
-    public Node getNode(String title){
-        try (Transaction tx = db.beginTx()) {
-            Node me = db.getNodeById(Long.valueOf(title));
-            tx.success();
-            return me;
-        } catch (Exception e) {
-            e.printStackTrace();
+    public Node update(Film film) throws Exception {
+        Node oldNode = getNode(film.getName());
+        if (oldNode == null)
+            throw new Exception("This user doesn't exits");
+        convertToNode(oldNode, film);
+        return oldNode;
+    }
+
+    //
+    public List<Film> getAllFilms() {
+        ResourceIterator<Node> nodes = db.findNodes(Types.FILM);
+        List<Film> films = new ArrayList<>();
+        while (nodes.hasNext()) {
+            Node n = nodes.next();
+            films.add(convertToFilm(n));
+        }
+
+        return films;
+    }
+
+    public Node getNode(String name) {
+        return db.findNode(Types.FILM, "name", name);
+    }
+
+    public Film convertToFilm(Node n){
+        Film f = new Film();
+        f.setName((String)n.getProperty("name"));
+        f.setType(Types.FILM.name());
+        return f;
+    }
+
+    public void convertToNode(Node n, Film f){
+        n.setProperty("name", f.getName());
+        n.setProperty("type", Types.FILM.name());
+        n.addLabel(Types.FILM);
+    }
+
+    public Film getFilm(String name){
+        Node n = getNode(name);
+        if(n != null){
+            return convertToFilm(n);
         }
         return null;
     }
-
-//    public User convertToUser(Node n){
-//        User user = new User();
-//        user.setFirstName((String)n.getProperty("firstName"));
-//        user.setLastName((String) n.getProperty("lastName"));
-//        user.setUserName((String) n.getProperty("userName"));
-//        user.setPassword(((String) n.getProperty("password")));
-//        return user;
-//    }
-//
-//    public void convertToNode(Node n, User u){
-//        n.setProperty("userName", u.getUserName());
-//        n.setProperty("password", u.getPassword());
-//        n.setProperty("firstName", u.getFirstName());
-//        n.setProperty("lastName", u.getLastName());
-//        n.setProperty("type", Types.USER.name());
-//        n.addLabel(Types.USER);
-//    }
-//
-//    public User getUser(String userName){
-//        Node n = getNode(userName);
-//        if(n != null){
-//            return convertToUser(n);
-//        }
-//        return null;
-//    }
 }
