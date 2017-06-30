@@ -1,6 +1,7 @@
 package neo4j.ir.Service;
 
 import neo4j.ir.nodes.Genre;
+import neo4j.ir.nodes.Keyword;
 import neo4j.ir.nodes.Movie;
 import neo4j.ir.nodes.Person;
 import neo4j.ir.web.dto.MovieDTO;
@@ -46,10 +47,12 @@ public class MovieService {
         Session session = driver.session();
         Movie m = dto.getMovie();
         String query = "CREATE (n:MOVIE {title:{title}, summary:{summary}, tagline:{tagline}" +
-                ", productionYear:{productionYear}, duration:{duration}, imageURL:{imageURL}, rate:{rate}}) return ID(n) as id";
-        StatementResult sr = session.run(query, parameters("title", m.getTitle(),
+                ", productionDate:{productionDate}, duration:{duration}, imageURL:{imageURL}" +
+                ", rate:{rate}}) return ID(n) as id";
+        StatementResult sr = session.run(query,
+                parameters("title", m.getTitle(),
                 "tagline", m.getTagline(),
-                "productionYear", m.getProductionYear(),
+                "productionDate", m.getProductionDate(),
                 "duration", m.getDuration(),
                 "imageURL", m.getImageURL(),
                 "rate", m.getRate(),
@@ -62,17 +65,26 @@ public class MovieService {
             addWriter(dto.getWriter().getId(), movieID);
         }
 
+        if(dto.getProducer() != null){
+            addProducer(dto.getProducer().getId(), movieID);
+        }
+
         for (Genre g :
                 dto.getGenres()) {
             addGenre(movieID, g.getId());
         }
 
         for (Person person :
-                dto.getPlayers()) {
+                dto.getActors()) {
             addActor(person.getId(), movieID);
+        }
+
+        for(Keyword keyword: dto.getKeywords()){
+            addKeyword(movieID, keyword.getId());
         }
         session.close();
     }
+
     public void update(MovieDTO dto){
         if(!exists(dto.getMovie().getTitle())){
             System.out.println("this movie doesn't exist");
@@ -113,6 +125,14 @@ public class MovieService {
         session.close();
     }
 
+    private void addProducer(int id, int movieID) {
+        relation(id, "PERSON", movieID, "MOVIE", "PRODUCED", new HashMap<>());
+    }
+
+    private void addKeyword(int movieID, int id) {
+        relation(movieID, "MOVIE", id, "KEYWORD", "HAS_KEYWORD", new HashMap<>());
+    }
+
     public void addDirector(int directorId, int movieId) {
         relation(directorId, "PERSON", movieId, "MOVIE", "DIRECTED_IN", new HashMap<>());
     }
@@ -136,10 +156,10 @@ public class MovieService {
             Movie m = new Movie();
             m.setTitle(r.get("title").asString());
             m.setId(r.get("id").asInt());
-            m.setDuration(r.get("duration").asString());
+            m.setDuration(r.get("duration").asInt());
             m.setImageURL(r.get("imageURL").asString());
-            m.setProductionYear(r.get("productionYear").asString());
-            m.setRate(r.get("rate").asString());
+            m.setProductionDate(r.get("productionDate").asLong());
+            m.setRate(r.get("rate").asInt());
             m.setTagline(r.get("tagline").asString());
             movies.add(m);
         }
@@ -153,7 +173,7 @@ public class MovieService {
                 " m.title as title," +
                 " m.duration as duration," +
                 " m.imageURL as imageURL," +
-                " m.productionYear as productionYear," +
+                " m.productionDate as productionDate," +
                 " m.rate as rate," +
                 " m.tagline as tagline";
         StatementResult sr = s.run(query, parameters("title", title));
@@ -169,7 +189,7 @@ public class MovieService {
                 " m.title as title," +
                 " m.duration as duration," +
                 " m.imageURL as imageURL," +
-                " m.productionYear as productionYear," +
+                " m.productionDate as productionDate," +
                 " m.rate as rate," +
                 " m.tagline as tagline";
         StatementResult sr = s.run(query);
@@ -185,5 +205,58 @@ public class MovieService {
         }
 
         return null;
+    }
+
+    public List<Movie> getTop5(){
+        Session s = driver.session();
+        String query = "MATCH (m:MOVIE)" +
+                " return ID(m) as id," +
+                " m.title as title," +
+                " m.duration as duration," +
+                " m.imageURL as imageURL," +
+                " m.productionDate as productionDate," +
+                " m.rate as rate," +
+                " m.tagline as tagline" +
+                " ORDER BY rate" +
+                " LIMIT 5";
+        StatementResult sr = s.run(query);
+        List<Movie> m = convertToMovies(sr);
+        s.close();
+        return m;
+    }
+
+    public List<Movie> getLatest(){
+        Session s = driver.session();
+        String query = "MATCH (m:MOVIE)" +
+                " return ID(m) as id," +
+                " m.title as title," +
+                " m.duration as duration," +
+                " m.imageURL as imageURL," +
+                " m.productionDate as productionDate," +
+                " m.rate as rate," +
+                " m.tagline as tagline" +
+                " ORDER BY productionDate" +
+                " LIMIT 20";
+        StatementResult sr = s.run(query);
+        List<Movie> m = convertToMovies(sr);
+        s.close();
+        return m;
+    }
+
+    public Movie getById(int movieId) {
+        Session s = driver.session();
+        String query = "MATCH (m:MOVIE)" +
+                " WHERE ID(m) = {id}" +
+                " return ID(m) as id," +
+                " m.title as title," +
+                " m.duration as duration," +
+                " m.imageURL as imageURL," +
+                " m.productionDate as productionDate," +
+                " m.rate as rate," +
+                " m.tagline as tagline";
+        StatementResult sr = s.run(query, parameters("id", movieId));
+        Movie m = convertToMovies(sr).get(0);
+        s.close();
+        return m;
     }
 }

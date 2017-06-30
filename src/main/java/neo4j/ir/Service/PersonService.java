@@ -74,4 +74,44 @@ public class PersonService {
         session.close();
         return pe;
     }
+
+    public List<Person> getMovieActors(int movieId){
+        Session session = driver.session();
+        String query = "MATCH (p:PERSON)-[:ACTED_IN]->(m:MOVIE) WHERE ID(m) = {movieId}" +
+                " return p.name as name, p.born as born, ID(p) as id, p.imageURL as imageURL";
+        StatementResult sr = session.run(query, parameters("movieId", movieId));
+        List<Person> pe = convertToPerson(sr);
+        session.close();
+        return pe;
+    }
+
+    public Person getMovieDirector(int movieId){
+        Session session = driver.session();
+        String query = "MATCH (p:PERSON)-[:DIRECTED_IN]->(m:MOVIE) WHERE ID(m) = {movieId}" +
+                " return p.name as name, p.born as born, ID(p) as id, p.imageURL as imageURL";
+        StatementResult sr = session.run(query, parameters("movieId", movieId));
+        List<Person> pe = convertToPerson(sr);
+        session.close();
+        return pe.get(0);
+    }
+
+    public Person getMovieWriter(int movieId){
+        Session session = driver.session();
+        String query = "MATCH (p:PERSON)-[:WRITER_OF]->(m:MOVIE) WHERE ID(m) = {movieId}" +
+                " return p.name as name, p.born as born, ID(p) as id, p.imageURL as imageURL";
+        StatementResult sr = session.run(query, parameters("movieId", movieId));
+        List<Person> pe = convertToPerson(sr);
+        session.close();
+        return pe.get(0);
+    }
+
+    public Person getMovieProducer(int movieId){
+        Session session = driver.session();
+        String query = "MATCH (p:PERSON)-[:PRODUCED]->(m:MOVIE) WHERE ID(m) = {movieId}" +
+                " return p.name as name, p.born as born, ID(p) as id, p.imageURL as imageURL";
+        StatementResult sr = session.run(query, parameters("movieId", movieId));
+        List<Person> pe = convertToPerson(sr);
+        session.close();
+        return pe.get(0);
+    }
 }

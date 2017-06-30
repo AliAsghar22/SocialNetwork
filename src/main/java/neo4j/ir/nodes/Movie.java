@@ -12,17 +12,16 @@ public class Movie {
     @JsonProperty String tagline;
     @JsonProperty String summary;
     @JsonProperty String imageURL;
-    @JsonProperty String duration;
-    @JsonProperty String rate;
-    @JsonProperty String productionYear;
+    @JsonProperty int duration;
+    @JsonProperty int rate;
+    @JsonProperty long productionDate;
 
-
-    public String getProductionYear() {
-        return productionYear;
+    public long getProductionDate() {
+        return productionDate;
     }
 
-    public void setProductionYear(String productionYear) {
-        this.productionYear = productionYear;
+    public void setProductionDate(long productionDate) {
+        this.productionDate = productionDate;
     }
 
     public int getId() {
@@ -65,19 +64,19 @@ public class Movie {
         this.imageURL = imageURL;
     }
 
-    public String getDuration() {
+    public int getDuration() {
         return duration;
     }
 
-    public void setDuration(String duration) {
+    public void setDuration(int duration) {
         this.duration = duration;
     }
 
-    public String getRate() {
+    public int getRate() {
         return rate;
     }
 
-    public void setRate(String rate) {
+    public void setRate(int rate) {
         this.rate = rate;
     }
 }
