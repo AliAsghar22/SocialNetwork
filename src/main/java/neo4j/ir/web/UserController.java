@@ -56,7 +56,7 @@ public class UserController {
 
     @GetMapping("/page")
     public ResponseEntity getUserPage(){
-        List<Film> films = userService.getRelatedFilms(securityHelper.getCurrentUserUserName());
+        List<Film> films = userService.getRelatedMovies(securityHelper.getCurrentUserUserName());
         return ResponseEntity.ok(films);
     }
 

@@ -1,6 +1,6 @@
 package neo4j.ir.Service;
 
-import neo4j.ir.nodes.Film;
+import neo4j.ir.nodes.Movie;
 import neo4j.ir.nodes.User;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Record;
@@ -129,17 +129,18 @@ public class UserService {
         session.close();
     }
 
-    public List<Film> getRelatedFilms(String user) {
-        List<Film> films = new ArrayList<>();
+    public List<Movie> getRelatedMovies(String user) {
+        List<Movie> films = new ArrayList<>();
         Session session = driver.session();
-        String query = "MATCH (u:USER {userName:{userName}})-->(f:FILM) return f.name as name";
+        String query = "MATCH (u:USER {userName:{userName}})-->(f:MOVIE) return f.title as title ID(f) as id";
         StatementResult sr = session.run(query, parameters("userName", user));
         while (sr.hasNext()) {
             Record r = sr.next();
-            films.add(new Film(r.get("name").asString()));
+            Movie m = new Movie();
+            m.setTitle(r.get("title").asString());
+            m.setId(r.get("id").asInt());
         }
         session.close();
-
         return films;
     }
 
