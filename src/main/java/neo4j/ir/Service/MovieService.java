@@ -67,7 +67,9 @@ public class MovieService {
             addProducer(dto.getProducer().getId(), movieID);
         }
 
-        if(dto.getGenres() !=null)
+
+
+        if (dto.getGenres() != null)
             for (Genre g :
                     dto.getGenres()) {
                 addGenre(movieID, g.getId());
@@ -79,7 +81,7 @@ public class MovieService {
                 addActor(person.getId(), movieID);
             }
 
-        if(dto.getKeywords() != null)
+        if (dto.getKeywords() != null)
             for (Keyword keyword : dto.getKeywords()) {
                 addKeyword(movieID, keyword.getId());
             }
@@ -227,8 +229,8 @@ public class MovieService {
             query += "where m.productionDate > " + date1 + " and m.productionDate < " + date2 + " with m ";
         }
 
-        if(dto.getTitle() != null){
-            query += "where m.title contains \""+dto.getTitle()+"\" with m";
+        if (dto.getTitle() != null) {
+            query += "where m.title contains \"" + dto.getTitle() + "\" with m";
         }
 
         query += " return ID(m) as id," +
@@ -315,5 +317,49 @@ public class MovieService {
 
         s.run(query, parameters("id", movieId, "rate", lastScore));
         s.close();
+    }
+
+    public List<Movie> suggestByGenre(String userName) {
+        Session s = driver.session();
+        String query =
+                "MATCH (u:USER{userName:{userName}})-[:SCORED]->(m:MOVIE)-[:HAS_GENRE]->(g:GENRE)" +
+                        " with g, count(*) as cnt , u" +
+                        " where cnt > 5" +
+                        " with u, g" +
+                        " match (m:MOVIE) where not (u)-->(m)" +
+                        " with m, g" +
+                        " match (m)-[:HAS_GENRE]->(g)" +
+                        " return ID(m) as id," +
+                        " m.title as title," +
+                        " m.duration as duration," +
+                        " m.imageURL as imageURL," +
+                        " m.productionDate as productionDate," +
+                        " m.rate as rate," +
+                        " m.tagline as tagline";
+        StatementResult sr = s.run(query, parameters("userName", userName));
+        List<Movie> movies = convertToMovies(sr);
+        s.close();
+        return movies;
+    }
+
+    public List<Movie> suggestByOtherPeople(String userName) {
+        Session s = driver.session();
+        String query =
+                "MATCH (u:USER{userName:{userName}}), (m:MOVIE) where not (u)-->(m)" +
+                        " with m , u" +
+                        " match (n:USER)-[:SCORED]->(m)" +
+                        " where n.male = u.male " +
+                        " and (n.age - 8) < u.age and u.age < (n.age + 8)" +
+                        " return ID(m) as id," +
+                        " m.title as title," +
+                        " m.duration as duration," +
+                        " m.imageURL as imageURL," +
+                        " m.productionDate as productionDate," +
+                        " m.rate as rate," +
+                        " m.tagline as tagline";
+        StatementResult sr = s.run(query, parameters("userName", userName));
+        List<Movie> movies = convertToMovies(sr);
+        s.close();
+        return movies;
     }
 }

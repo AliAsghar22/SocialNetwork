@@ -22,6 +22,12 @@ public class User {
     @JsonProperty
     private String lastName;
 
+    @JsonProperty
+    private int age;
+
+    @JsonProperty
+    private boolean male;
+
 
     public User() {
 
@@ -75,5 +81,19 @@ public class User {
         this.lastName = lastName;
     }
 
+    public int getAge() {
+        return age;
+    }
 
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public boolean isMale() {
+        return male;
+    }
+
+    public void setMale(boolean male) {
+        this.male = male;
+    }
 }
