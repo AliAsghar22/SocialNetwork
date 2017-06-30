@@ -5,6 +5,7 @@ import neo4j.ir.nodes.Keyword;
 import neo4j.ir.nodes.Movie;
 import neo4j.ir.nodes.Person;
 import neo4j.ir.web.dto.MovieDTO;
+import neo4j.ir.web.dto.MovieSearchDTO;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.Session;
@@ -12,10 +13,7 @@ import org.neo4j.driver.v1.StatementResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.neo4j.driver.v1.Values.parameters;
 
@@ -51,12 +49,12 @@ public class MovieService {
                 ", rate:{rate}}) return ID(n) as id";
         StatementResult sr = session.run(query,
                 parameters("title", m.getTitle(),
-                "tagline", m.getTagline(),
-                "productionDate", m.getProductionDate(),
-                "duration", m.getDuration(),
-                "imageURL", m.getImageURL(),
-                "rate", m.getRate(),
-                "summary", m.getSummary()));
+                        "tagline", m.getTagline(),
+                        "productionDate", m.getProductionDate(),
+                        "duration", m.getDuration(),
+                        "imageURL", m.getImageURL(),
+                        "rate", m.getRate(),
+                        "summary", m.getSummary()));
         int movieID = sr.next().get("id").asInt();
         if (dto.getDirector() != null) {
             addDirector(dto.getDirector().getId(), movieID);
@@ -65,7 +63,7 @@ public class MovieService {
             addWriter(dto.getWriter().getId(), movieID);
         }
 
-        if(dto.getProducer() != null){
+        if (dto.getProducer() != null) {
             addProducer(dto.getProducer().getId(), movieID);
         }
 
@@ -79,14 +77,14 @@ public class MovieService {
             addActor(person.getId(), movieID);
         }
 
-        for(Keyword keyword: dto.getKeywords()){
+        for (Keyword keyword : dto.getKeywords()) {
             addKeyword(movieID, keyword.getId());
         }
         session.close();
     }
 
-    public void update(MovieDTO dto){
-        if(!exists(dto.getMovie().getTitle())){
+    public void update(MovieDTO dto) {
+        if (!exists(dto.getMovie().getTitle())) {
             System.out.println("this movie doesn't exist");
             return;
         }
@@ -94,7 +92,7 @@ public class MovieService {
         add(dto);
     }
 
-    public void delete(String title){
+    public void delete(String title) {
         Session session = driver.session();
         String query = "MATCH (n:MOVIE{title:{title}})-[r]-() delete r";
         session.run(query, parameters("title", title));
@@ -182,7 +180,7 @@ public class MovieService {
         return m;
     }
 
-    public List<Movie> getAll(){
+    public List<Movie> getAll() {
         Session s = driver.session();
         String query = "MATCH (m:MOVIE)" +
                 " return ID(m) as id," +
@@ -198,16 +196,47 @@ public class MovieService {
         return m;
     }
 
-    public List<Movie> search(MovieDTO dto){
-        Movie m = dto.getMovie();
-        if(dto.getGenres() != null && dto.getGenres().size() != 0){
-
+    public List<Movie> search(MovieSearchDTO dto) {
+        String query = "MATCH (m:MOVIE) with m ";
+        if (dto.getGenre() != null)
+            for (String g : dto.getGenre()) {
+                query += "MATCH (m)-[r:HAS_GENRE ]->(g {name:\"" + g + "\"}) with m ";
+            }
+        if (dto.getActorNames() != null)
+            for (String g : dto.getActorNames()) {
+                query += "MATCH (a {name:\"" + g + "\"})-[r:ACTED_IN ]->(m) with m ";
+            }
+        if (dto.getDirectorName() != null) {
+            query += "MATCH (d {name:\"" + dto.getDirectorName() + "\"})-[r:DIRECTED_IN]->(m) with m ";
         }
-
-        return null;
+        if (dto.getWriterName() != null) {
+            query += "MATCH (w {name:\"" + dto.getWriterName() + "\"})-[r:WRITER_OF]->(m) with m ";
+        }
+        if (dto.getProductionYear() != null) {
+            Calendar cal = Calendar.getInstance();
+            cal.set(Calendar.HOUR_OF_DAY, 0);
+            cal.set(Calendar.MONTH, 1);
+            cal.set(Calendar.DAY_OF_MONTH, 1);
+            cal.set(Calendar.YEAR, Integer.valueOf(dto.getProductionYear()));
+            long date1 = cal.getTimeInMillis();
+            cal.set(Calendar.YEAR, Integer.valueOf(dto.getProductionYear()) + 1);
+            long date2 = cal.getTimeInMillis();
+            query += "where m.productionDate > " + date1 + " and m.productionDate < " + date2 + " ";
+        }
+        query += " return ID(m) as id," +
+                " m.title as title," +
+                " m.duration as duration," +
+                " m.imageURL as imageURL," +
+                " m.productionDate as productionDate," +
+                " m.rate as rate," +
+                " m.tagline as tagline";
+        Session s = driver.session();
+        List<Movie> movies = convertToMovies(s.run(query));
+        s.close();
+        return movies;
     }
 
-    public List<Movie> getTop5(){
+    public List<Movie> getTop5() {
         Session s = driver.session();
         String query = "MATCH (m:MOVIE)" +
                 " return ID(m) as id," +
@@ -225,7 +254,7 @@ public class MovieService {
         return m;
     }
 
-    public List<Movie> getLatest(){
+    public List<Movie> getLatest() {
         Session s = driver.session();
         String query = "MATCH (m:MOVIE)" +
                 " return ID(m) as id," +
@@ -260,7 +289,7 @@ public class MovieService {
         return m;
     }
 
-    public void calculateRate(int movieId){
+    public void calculateRate(int movieId) {
         Session s = driver.session();
         String query = "MATCH (u:USER)-[c:SCORED]->(m:MOVIE)" +
                 " WHERE ID(m) = {id}" +
@@ -270,13 +299,13 @@ public class MovieService {
         Record r = sr.next();
         int count = r.get("count").asInt();
         float score = r.get("score").asFloat();
-        float lastScore = score/count;
+        float lastScore = score / count;
 
         query = "MATCH (m:MOVIE) " +
                 " WHERE ID(m) = {id}" +
                 " SET m.rate = {rate}";
 
-        s.run(query, parameters("id", movieId,"rate", lastScore));
+        s.run(query, parameters("id", movieId, "rate", lastScore));
         s.close();
     }
 }

@@ -5,6 +5,7 @@ import neo4j.ir.Service.KeywordService;
 import neo4j.ir.Service.MovieService;
 import neo4j.ir.Service.PersonService;
 import neo4j.ir.web.dto.MovieDTO;
+import neo4j.ir.web.dto.MovieSearchDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -72,5 +73,10 @@ public class MovieController {
         movieDTO.setKeywords(keywordService.getMovieKeywords(movieId));
 
         return ResponseEntity.ok(movieDTO);
+    }
+
+    @PostMapping("/search")
+    public ResponseEntity search(@RequestBody MovieSearchDTO dto){
+        return ResponseEntity.ok(movieService.search(dto));
     }
 }

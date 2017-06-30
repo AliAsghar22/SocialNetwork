@@ -161,7 +161,7 @@ public class UserService {
     public void addScore(String username, int id, float score){
         Session session = driver.session();
         String query = "MATCH (u:USER), (item) where ID(item) = {id} and u.userName = {userName} " +
-                "create UNIQUE  (u)-[s:SCORED]->(item) set s.score = {score}";
+                "create UNIQUE (u)-[s:SCORED]->(item) set s.score = {score}";
         session.run(query, parameters("userName",username, "id", id, "score", score));
         session.close();
         movieService.calculateRate(id);
