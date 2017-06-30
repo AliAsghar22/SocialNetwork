@@ -132,7 +132,7 @@ public class UserService {
     public List<Movie> getRelatedMovies(String user) {
         List<Movie> films = new ArrayList<>();
         Session session = driver.session();
-        String query = "MATCH (u:USER {userName:{userName}})-->(f:MOVIE) return f.title as title ID(f) as id";
+        String query = "MATCH (u:USER {userName:{userName}})-->(f:MOVIE) return f.title as title, ID(f) as id";
         StatementResult sr = session.run(query, parameters("userName", user));
         while (sr.hasNext()) {
             Record r = sr.next();
@@ -150,8 +150,8 @@ public class UserService {
 
     public void addComment(String username, int id, String comment, int score) {
         Session session = driver.session();
-        String query = "MATCH (u:User {userName:{userName}}), (i) where id(i) = {id} " +
-                "create (u)-[:COMMENTED {comment:{comment}, score:{score}}]->(i)";
+        String query = "MATCH (u:User {userName:{userName}}), (item) where ID(item) = {id} " +
+                "create (u)-[:COMMENTED {comment:{comment}, score:{score}}]->(item)";
         session.run(query, parameters("userName",username, "id", id, "comment", comment, "score", score));
         session.close();
     }

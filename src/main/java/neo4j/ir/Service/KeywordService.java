@@ -74,7 +74,7 @@ public class KeywordService {
 
     public List<Keyword> getMovieKeywords(int movieId){
         Session session = driver.session();
-        String query = "MATCH (m:MOVIE)-[:HAS_KEYWORD]->(g:GENRE) WHERE ID(m) = {movieID}" +
+        String query = "MATCH (m:MOVIE)-[:HAS_KEYWORD]->(g:KEYWORD) WHERE ID(m) = {movieId}" +
                 " return g.name as name, ID(g) as id";
         StatementResult sr = session.run(query, parameters("movieId", movieId));
         List<Keyword> pe = convertToKeyword(sr);

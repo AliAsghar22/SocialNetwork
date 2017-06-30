@@ -217,7 +217,7 @@ public class MovieService {
                 " m.productionDate as productionDate," +
                 " m.rate as rate," +
                 " m.tagline as tagline" +
-                " ORDER BY rate" +
+                " ORDER BY rate desc" +
                 " LIMIT 5";
         StatementResult sr = s.run(query);
         List<Movie> m = convertToMovies(sr);
@@ -235,7 +235,7 @@ public class MovieService {
                 " m.productionDate as productionDate," +
                 " m.rate as rate," +
                 " m.tagline as tagline" +
-                " ORDER BY productionDate" +
+                " ORDER BY productionDate desc" +
                 " LIMIT 20";
         StatementResult sr = s.run(query);
         List<Movie> m = convertToMovies(sr);

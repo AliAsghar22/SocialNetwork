@@ -74,7 +74,7 @@ public class GenreService {
 
     public List<Genre> getMovieGenres(int movieId){
         Session session = driver.session();
-        String query = "MATCH (m:MOVIE)-[:HAS_GENRE]->(g:GENRE) WHERE ID(m) = {movieID}" +
+        String query = "MATCH (m:MOVIE)-[:HAS_GENRE]->(g:GENRE) WHERE ID(m) = {movieId}" +
                 " return g.name as name, ID(g) as id";
         StatementResult sr = session.run(query, parameters("movieId", movieId));
         List<Genre> pe = convertToGenre(sr);

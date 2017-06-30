@@ -60,9 +60,10 @@ public class UserController {
         return ResponseEntity.ok(films);
     }
 
-    @GetMapping("/addFilmComment")
-    public void addComment(@RequestParam("itemId") int id, @RequestParam("comment") String comment, @RequestParam("score") int score) {
+    @GetMapping("/addComment")
+    public ResponseEntity addComment(@RequestParam("itemId") int id, @RequestParam("comment") String comment, @RequestParam("score") int score) {
         String username = securityHelper.getCurrentUserUserName();
         userService.addComment(username,id,comment, score);
+        return ResponseEntity.ok("added");
     }
 }

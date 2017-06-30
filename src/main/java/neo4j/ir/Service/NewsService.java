@@ -53,7 +53,7 @@ public class NewsService {
 
     public List<News> getAll(){
         Session session = driver.session();
-        String query = "MATCH (g:NEWS) return g.name as name, g.body as body ,ID(g) as id, g.date as date order by date";
+        String query = "MATCH (g:NEWS) return g.title as title, g.body as body ,ID(g) as id, g.date as date order by date desc";
         StatementResult sr = session.run(query);
         List<News> news = convertToNews(sr);
         session.close();
