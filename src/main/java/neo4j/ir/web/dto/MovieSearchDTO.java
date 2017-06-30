@@ -13,14 +13,7 @@ public class MovieSearchDTO {
     @JsonProperty private String productionYear;
     @JsonProperty private String writerName;
     @JsonProperty private String directorName;
-
-    public List<String> getGenre() {
-        return genres;
-    }
-
-    public void setGenre(List<String> genres) {
-        this.genres = genres;
-    }
+    @JsonProperty private String title;
 
     public List<String> getActorNames() {
         return actorNames;
@@ -52,5 +45,21 @@ public class MovieSearchDTO {
 
     public void setDirectorName(String directorName) {
         this.directorName = directorName;
+    }
+
+    public List<String> getGenres() {
+        return genres;
+    }
+
+    public void setGenres(List<String> genres) {
+        this.genres = genres;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

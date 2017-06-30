@@ -198,8 +198,8 @@ public class MovieService {
 
     public List<Movie> search(MovieSearchDTO dto) {
         String query = "MATCH (m:MOVIE) with m ";
-        if (dto.getGenre() != null)
-            for (String g : dto.getGenre()) {
+        if (dto.getGenres() != null)
+            for (String g : dto.getGenres()) {
                 query += "MATCH (m)-[r:HAS_GENRE ]->(g {name:\"" + g + "\"}) with m ";
             }
         if (dto.getActorNames() != null)
@@ -221,8 +221,13 @@ public class MovieService {
             long date1 = cal.getTimeInMillis();
             cal.set(Calendar.YEAR, Integer.valueOf(dto.getProductionYear()) + 1);
             long date2 = cal.getTimeInMillis();
-            query += "where m.productionDate > " + date1 + " and m.productionDate < " + date2 + " ";
+            query += "where m.productionDate > " + date1 + " and m.productionDate < " + date2 + " with m ";
         }
+
+        if(dto.getTitle() != null){
+            query += "where m.title contains \""+dto.getTitle()+"\" with m";
+        }
+
         query += " return ID(m) as id," +
                 " m.title as title," +
                 " m.duration as duration," +
