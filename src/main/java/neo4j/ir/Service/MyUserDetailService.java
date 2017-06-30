@@ -7,7 +7,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Created by Ali Asghar on 27/06/2017.
@@ -24,7 +25,15 @@ public class MyUserDetailService implements UserDetailsService {
         User user = userService.getUser(userName);
         if (user == null)
             throw new UsernameNotFoundException("user does not exist");
+        Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+        if (user.getUserName().equals("admin")) {
+            grantedAuthorities.add(() -> "ROLE_USER");
+            grantedAuthorities.add(() -> "ROLE_ADMIN");
+        } else {
+            grantedAuthorities.add(() -> "ROLE_USER");
+        }
+
         return new org.springframework.security.core.userdetails.User(user.getUserName(), user.getPassword()
-                , Collections.singletonList((GrantedAuthority) () -> "ROLE_USER"));
+                , grantedAuthorities);
     }
 }

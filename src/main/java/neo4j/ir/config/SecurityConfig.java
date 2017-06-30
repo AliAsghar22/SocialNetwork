@@ -23,10 +23,27 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests().antMatchers("/**").access("hasRole('USER')")
-        .and().formLogin().defaultSuccessUrl("/").permitAll()
-        .and().logout().permitAll()
-        .and().csrf().disable();
+        http
+                .authorizeRequests()
+                .antMatchers("/**")
+                .access("hasRole('USER')")
+
+                .and()
+                .authorizeRequests()
+                .antMatchers("/news/**")
+                .access("hasRole('ADMIN')")
+
+                .and()
+                .formLogin()
+                .defaultSuccessUrl("/")
+                .permitAll()
+
+                .and()
+                .logout()
+                .permitAll()
+
+                .and()
+                .csrf().disable();
     }
 //    @Autowired
 //    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {

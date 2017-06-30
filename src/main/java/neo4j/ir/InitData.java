@@ -36,8 +36,15 @@ public class InitData implements ApplicationListener<ContextRefreshedEvent> {
             u2.setPassword("123");
             u2.setUserName("ali2");
 
+            User u3 = new User();
+            u3.setUserName("admin");
+            u3.setPassword("admin");
+            u3.setFirstName("Admin");
+            u3.setLastName("AdminPoor");
+
             userService.add(u1);
             userService.add(u2);
+            userService.add(u3);
 
         } catch (Exception e) {
             e.printStackTrace();
