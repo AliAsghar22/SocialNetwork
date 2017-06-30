@@ -150,7 +150,7 @@ public class UserService {
 
     public void addComment(String username, int id, String comment, int score) {
         Session session = driver.session();
-        String query = "MATCH (u:User {userName:{userName}}), (item) where ID(item) = {id} " +
+        String query = "MATCH (u:USER), (item) where ID(item) = {id} and u.userName = {userName} " +
                 "create (u)-[:COMMENTED {comment:{comment}, score:{score}}]->(item)";
         session.run(query, parameters("userName",username, "id", id, "comment", comment, "score", score));
         session.close();

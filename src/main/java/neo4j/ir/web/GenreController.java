@@ -16,8 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/genre")
 public class GenreController {
-    @Autowired
-    GenreService genreService;
+    @Autowired GenreService genreService;
 
     @PostMapping("/add")
     public ResponseEntity add(@RequestBody Genre g){

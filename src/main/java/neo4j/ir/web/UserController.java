@@ -4,6 +4,7 @@ import neo4j.ir.Service.SecurityHelper;
 import neo4j.ir.Service.UserService;
 import neo4j.ir.nodes.Movie;
 import neo4j.ir.nodes.User;
+import neo4j.ir.web.dto.CommentDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -60,10 +61,10 @@ public class UserController {
         return ResponseEntity.ok(films);
     }
 
-    @GetMapping("/addComment")
-    public ResponseEntity addComment(@RequestParam("itemId") int id, @RequestParam("comment") String comment, @RequestParam("score") int score) {
+    @PostMapping("/addComment")
+    public ResponseEntity addComment(@RequestBody CommentDTO commentDTO) {
         String username = securityHelper.getCurrentUserUserName();
-        userService.addComment(username,id,comment, score);
+        userService.addComment(username,commentDTO.getItemId(), commentDTO.getBody(), commentDTO.getScore());
         return ResponseEntity.ok("added");
     }
 }
