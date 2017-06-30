@@ -44,11 +44,13 @@ public class UserService {
             return;
         Session session = driver.session();
         String query = "CREATE (u:USER {firstName:{firstName}, lastName:{lastName}, " +
-                "userName:{userName}, password:{password}})";
+                "userName:{userName}, password:{password}, age:{age}, male:{male}})";
         session.run(query, parameters("firstName", newUser.getFirstName(),
                 "lastName", newUser.getLastName(),
                 "userName", newUser.getUserName(),
-                "password", newUser.getPassword()));
+                "password", newUser.getPassword(),
+                "male", newUser.isMale(),
+                "age", newUser.getAge()));
         session.close();
     }
 
@@ -57,11 +59,13 @@ public class UserService {
             return;
         Session session = driver.session();
         String query = "MATCH (u:USER) WHERE u.userName = {userName} SET u.firstName = {firstName} " +
-                ", u.lastName = {lastName}, u.password = {password}";
+                ", u.lastName = {lastName}, u.password = {password} , age:{age}, male:{male}";
         session.run(query, parameters("userName", newUser.getUserName(),
                 "firstName", newUser.getFirstName(),
                 "lastName", newUser.getLastName(),
-                "password", newUser.getPassword()));
+                "password", newUser.getPassword(),
+                "male", newUser.isMale(),
+                "age", newUser.getAge()));
         session.close();
     }
 
@@ -72,7 +76,9 @@ public class UserService {
                 ", u.lastName as lastName" +
                 ", u.userName as userName" +
                 ", u.password as password" +
-                ", id(u) as id");
+                ", id(u) as id" +
+                ", u.male as male" +
+                ", u.age as age");
         users = convertToUser(sr);
         session.close();
         return users;
@@ -82,11 +88,14 @@ public class UserService {
         List<User> users = new ArrayList<>();
         while (sr.hasNext()) {
             Record r = sr.next();
-            User u = new User(r.get("firstName").asString(),
-                    r.get("lastName").asString(),
-                    r.get("userName").asString(),
-                    r.get("password").asString(),
-                    r.get("id").asInt());
+            User u = new User();
+            u.setFirstName(r.get("firstName").asString());
+            u.setLastName(r.get("lastName").asString());
+            u.setPassword(r.get("password").asString());
+            u.setUserName(r.get("userName").asString());
+            u.setId(r.get("id").asInt());
+            u.setAge(r.get("age").asInt());
+            u.setMale(r.get("male").asBoolean());
             users.add(u);
         }
         return users;
@@ -99,7 +108,9 @@ public class UserService {
                         ", u.lastName as lastName" +
                         ", u.userName as userName" +
                         ", u.password as password" +
-                        ", ID(u) as id"
+                        ", ID(u) as id" +
+                        ", u.male as male" +
+                        ", u.age as age"
                 , parameters("userName", userName));
         User u = convertToUser(sr).get(0);
         session.close();
@@ -114,7 +125,9 @@ public class UserService {
                         ", u.lastName as lastName" +
                         ", u.userName as userName" +
                         ", u.password as password" +
-                        ", id(u) as id"
+                        ", id(u) as id" +
+                        ", u.male as male" +
+                        ", u.age as age"
                 , parameters("userName", currentUser));
         friends = convertToUser(sr);
         session.close();
@@ -146,7 +159,7 @@ public class UserService {
         return films;
     }
 
-    public int getID(String userName){
+    public int getID(String userName) {
         return getUser(userName).getId();
     }
 
@@ -154,16 +167,26 @@ public class UserService {
         Session session = driver.session();
         String query = "MATCH (u:USER), (item) where ID(item) = {id} and u.userName = {userName} " +
                 "create (u)-[:COMMENTED {comment:{comment}}]->(item)";
-        session.run(query, parameters("userName",username, "id", id, "comment", comment));
+        session.run(query, parameters("userName", username, "id", id, "comment", comment));
         session.close();
     }
 
-    public void addScore(String username, int id, float score){
+    public void addScore(String username, int id, float score) {
         Session session = driver.session();
         String query = "MATCH (u:USER), (item) where ID(item) = {id} and u.userName = {userName} " +
                 "create UNIQUE (u)-[s:SCORED]->(item) set s.score = {score}";
-        session.run(query, parameters("userName",username, "id", id, "score", score));
+        session.run(query, parameters("userName", username, "id", id, "score", score));
         session.close();
         movieService.calculateRate(id);
     }
+
+//    public List<User> suggestFriend(String userName) {
+//        Session session = driver.session();
+//        String query = "MATCH (u:USER{userName:{userName}})-[]->(m:MOVIE),(n:User)" +
+//                " WHERE not (u)-[]-(n)" +
+//                " with n " +
+//                " ";
+//        session.run(query, parameters("userName", userName));
+//        session.close();
+//    }
 }

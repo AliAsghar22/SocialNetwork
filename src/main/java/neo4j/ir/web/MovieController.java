@@ -1,9 +1,6 @@
 package neo4j.ir.web;
 
-import neo4j.ir.Service.GenreService;
-import neo4j.ir.Service.KeywordService;
-import neo4j.ir.Service.MovieService;
-import neo4j.ir.Service.PersonService;
+import neo4j.ir.Service.*;
 import neo4j.ir.web.dto.MovieDTO;
 import neo4j.ir.web.dto.MovieSearchDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +25,9 @@ public class MovieController {
 
     @Autowired
     GenreService genreService;
+
+    @Autowired
+    SecurityHelper securityHelper;
 
     @PostMapping("/add")
     public ResponseEntity add(@RequestBody MovieDTO dto) {
@@ -78,5 +78,15 @@ public class MovieController {
     @PostMapping("/search")
     public ResponseEntity search(@RequestBody MovieSearchDTO dto){
         return ResponseEntity.ok(movieService.search(dto));
+    }
+
+    @GetMapping("/suggestByGenre")
+    public ResponseEntity suggestByGenre(){
+        return ResponseEntity.ok(movieService.suggestByGenre(securityHelper.getCurrentUserUserName()));
+    }
+
+    @GetMapping("/suggestByOtherPeople")
+    public ResponseEntity suggestByOtherPeople(){
+        return ResponseEntity.ok(movieService.suggestByOtherPeople(securityHelper.getCurrentUserUserName()));
     }
 }

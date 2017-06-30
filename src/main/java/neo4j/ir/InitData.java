@@ -29,18 +29,24 @@ public class InitData implements ApplicationListener<ContextRefreshedEvent> {
             u1.setLastName("taghi");
             u1.setPassword("123");
             u1.setUserName("ali");
+            u1.setAge(21);
+            u1.setMale(true);
 
             User u2 = new User();
             u2.setFirstName("ali");
             u2.setLastName("taghi");
             u2.setPassword("123");
             u2.setUserName("ali2");
+            u1.setAge(21);
+            u1.setMale(true);
 
             User u3 = new User();
             u3.setUserName("admin");
             u3.setPassword("admin");
             u3.setFirstName("Admin");
             u3.setLastName("AdminPoor");
+            u1.setAge(21);
+            u1.setMale(true);
 
             userService.add(u1);
             userService.add(u2);
