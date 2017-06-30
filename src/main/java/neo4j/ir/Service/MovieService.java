@@ -259,4 +259,22 @@ public class MovieService {
         s.close();
         return m;
     }
+
+    public void calculateRate(int movieId){
+        Session s = driver.session();
+        String query = "MATCH (u:USER)-[c:COMMENTED]->(m:MOVIE)" +
+                " WHERE ID(m) = {id}" +
+                " return count(u) as count" +
+                " , sum(c.score) as score";
+        StatementResult sr = s.run(query, parameters("id", movieId));
+        int count = sr.next().get("count").asInt();
+        float score = sr.next().get("score").asFloat();
+        float lastScore = score/count;
+
+        query = "MATCH (u:USER)-[c:COMMENTED]->(m:MOVIE)" +
+                " WHERE ID(m) = {id}" +
+                " SET m.score = {score}";
+        s.run(query, parameters("score", lastScore));
+        s.close();
+    }
 }

@@ -22,6 +22,8 @@ import static org.neo4j.driver.v1.Values.parameters;
 public class UserService {
 
     final Driver driver;
+    @Autowired
+    MovieService movieService;
 
 
     @Autowired
@@ -154,5 +156,6 @@ public class UserService {
                 "create (u)-[:COMMENTED {comment:{comment}, score:{score}}]->(item)";
         session.run(query, parameters("userName",username, "id", id, "comment", comment, "score", score));
         session.close();
+        movieService.calculateRate(id);
     }
 }
