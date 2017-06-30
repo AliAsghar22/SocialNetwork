@@ -1,7 +1,10 @@
 package neo4j.ir;
 
+import neo4j.ir.Service.MovieService;
 import neo4j.ir.Service.UserService;
+import neo4j.ir.nodes.Movie;
 import neo4j.ir.nodes.User;
+import neo4j.ir.web.dto.MovieDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -14,11 +17,12 @@ import org.springframework.stereotype.Component;
 public class InitData implements ApplicationListener<ContextRefreshedEvent> {
 
     UserService userService;
+    MovieService movieService;
 
 
     @Autowired
-    public InitData(UserService userService) {
-        this.userService = userService;
+    public InitData(UserService userService,MovieService movieService) {
+        this.userService = userService;this.movieService = movieService;
     }
 
     @Override
@@ -42,9 +46,22 @@ public class InitData implements ApplicationListener<ContextRefreshedEvent> {
             u3.setFirstName("Admin");
             u3.setLastName("AdminPoor");
 
+            Movie m1 = new Movie();
+            MovieDTO dto1 = new MovieDTO();
+            dto1.setMovie(m1);
+            m1.setTitle("Interstellar");
+
+            Movie m2 = new Movie();
+            MovieDTO dto2 = new MovieDTO();
+            dto2.setMovie(m2);
+            m2.setTitle("Inception");
+
             userService.add(u1);
             userService.add(u2);
             userService.add(u3);
+
+            movieService.add(dto1);
+            movieService.add(dto2);
 
         } catch (Exception e) {
             e.printStackTrace();

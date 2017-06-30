@@ -25,24 +25,34 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
+                .antMatchers("/register.html","/user/add")
+                .permitAll()
+
+                .and()
+
+                .authorizeRequests()
                 .antMatchers("/**")
                 .access("hasRole('USER')")
 
                 .and()
+
                 .authorizeRequests()
                 .antMatchers("/news/**")
                 .access("hasRole('ADMIN')")
 
                 .and()
+
                 .formLogin()
                 .defaultSuccessUrl("/")
                 .permitAll()
 
                 .and()
+
                 .logout()
                 .permitAll()
 
                 .and()
+
                 .csrf().disable();
     }
 //    @Autowired

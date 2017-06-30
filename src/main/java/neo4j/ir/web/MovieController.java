@@ -1,5 +1,6 @@
 package neo4j.ir.web;
 
+import com.sun.xml.internal.ws.spi.db.MethodGetter;
 import neo4j.ir.Service.GenreService;
 import neo4j.ir.Service.KeywordService;
 import neo4j.ir.Service.MovieService;
@@ -10,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 /**
  * Created by Ali Asghar on 29/06/2017.
@@ -61,18 +64,20 @@ public class MovieController {
         return ResponseEntity.ok("updated");
     }
 
-    @GetMapping("/detail")
-    public ResponseEntity getDetail(@RequestParam("movieId") int movieId){
+    @GetMapping(value = "/{movieId}")
+    public String getDetail(@PathVariable("movieId") String movieId,Map<String,Object> model){
         MovieDTO movieDTO = new MovieDTO();
-        movieDTO.setMovie(movieService.getById(movieId));
-        movieDTO.setDirector(personService.getMovieDirector(movieId));
-        movieDTO.setProducer(personService.getMovieProducer(movieId));
-        movieDTO.setWriter(personService.getMovieWriter(movieId));
-        movieDTO.setActors(personService.getMovieActors(movieId));
-        movieDTO.setGenres(genreService.getMovieGenres(movieId));
-        movieDTO.setKeywords(keywordService.getMovieKeywords(movieId));
+        movieDTO.setMovie(movieService.getByTitle(movieId));
+//        movieDTO.setDirector(personService.getMovieDirector(movieId));
+//        movieDTO.setProducer(personService.getMovieProducer(movieId));
+//        movieDTO.setWriter(personService.getMovieWriter(movieId));
+//        movieDTO.setActors(personService.getMovieActors(movieId));
+//        movieDTO.setGenres(genreService.getMovieGenres(movieId));
+//        movieDTO.setKeywords(keywordService.getMovieKeywords(movieId));
 
-        return ResponseEntity.ok(movieDTO);
+        model.put("movie",movieDTO.getMovie());
+
+        return "MovieDetail";
     }
 
     @PostMapping("/search")

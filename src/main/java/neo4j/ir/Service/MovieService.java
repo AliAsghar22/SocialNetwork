@@ -67,19 +67,22 @@ public class MovieService {
             addProducer(dto.getProducer().getId(), movieID);
         }
 
-        for (Genre g :
-                dto.getGenres()) {
-            addGenre(movieID, g.getId());
-        }
+        if(dto.getGenres() !=null)
+            for (Genre g :
+                    dto.getGenres()) {
+                addGenre(movieID, g.getId());
+            }
 
-        for (Person person :
-                dto.getActors()) {
-            addActor(person.getId(), movieID);
-        }
+        if(dto.getActors() != null)
+            for (Person person :
+                    dto.getActors()) {
+                addActor(person.getId(), movieID);
+            }
 
-        for (Keyword keyword : dto.getKeywords()) {
-            addKeyword(movieID, keyword.getId());
-        }
+        if(dto.getKeywords() != null)
+            for (Keyword keyword : dto.getKeywords()) {
+                addKeyword(movieID, keyword.getId());
+            }
         session.close();
     }
 

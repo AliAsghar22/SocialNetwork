@@ -5,11 +5,36 @@
     <title>Home Page</title>
 </head>
 <body>
-    <p>
+    <p style="text-align: center">
         Hello, Welcome To Our Social Network
     </p>
-    <div th:text="'username: ' + ${userName}"></div>
-    <div th:text="'first name: ' + ${firstName}"></div>
-    <div th:text="'last name: ' + ${lastName}"></div>
+
+    <div style="text-align: center">
+        <div th:text="'username: ' + ${userName}"></div>
+        <div th:text="'first name: ' + ${firstName}"></div>
+        <div th:text="'last name: ' + ${lastName}"></div>
+        <a href="/logout">logout</a>
+    </div>
+
+    <table align="center" style="padding-top: 2%">
+        <tr>
+            <th>Friends</th>
+            <th style="padding-left: 20%">Friend Suggestions</th>
+            <th style="padding-left: 40%">Movies</th>
+            <th style="padding-left: 60%">Movie Suggestions</th>
+        </tr>
+        <tr>
+            <td></td>
+            <td style="padding-left: 20%"></td>
+            <td style="padding-left: 40%">
+                <ul>
+                    <li th:each="item : ${test}">
+                        <a th:href="|/movie/${item.title}|" th:text="${item.title}"></a>
+                    </li>
+                </ul>
+            </td>
+            <td style="padding-left: 60%"></td>
+        </tr>
+    </table>
 </body>
 </html>
