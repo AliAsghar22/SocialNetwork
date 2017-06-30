@@ -67,19 +67,22 @@ public class MovieService {
             addProducer(dto.getProducer().getId(), movieID);
         }
 
-        for (Genre g :
-                dto.getGenres()) {
-            addGenre(movieID, g.getId());
-        }
+        if (dto.getGenres() != null)
+            for (Genre g :
+                    dto.getGenres()) {
+                addGenre(movieID, g.getId());
+            }
 
-        for (Person person :
-                dto.getActors()) {
-            addActor(person.getId(), movieID);
-        }
+        if (dto.getActors() != null)
+            for (Person person :
+                    dto.getActors()) {
+                addActor(person.getId(), movieID);
+            }
 
-        for (Keyword keyword : dto.getKeywords()) {
-            addKeyword(movieID, keyword.getId());
-        }
+        if (dto.getKeywords() != null)
+            for (Keyword keyword : dto.getKeywords()) {
+                addKeyword(movieID, keyword.getId());
+            }
         session.close();
     }
 
@@ -317,11 +320,10 @@ public class MovieService {
     public List<Movie> suggestByGenre(String userName) {
         Session s = driver.session();
         String query =
-                "MATCH (u:USER{userName:{userName}})-->(m:MOVIE)-[:HAS_GENRE]->(g:GENRE)" +
-                        " with u, distinct g" +
-                        " with u, count(g) as cnt" +
+                "MATCH (u:USER{userName:{userName}})-[:SCORED]->(m:MOVIE)-[:HAS_GENRE]->(g:GENRE)" +
+                        " with g, count(*) as cnt , u" +
                         " where cnt > 5" +
-                        " with u, distinct g" +
+                        " with u, g" +
                         " match (m:MOVIE) where not (u)-->(m)" +
                         " with m, g" +
                         " match (m)-[:HAS_GENRE]->(g)" +
@@ -342,7 +344,7 @@ public class MovieService {
         Session s = driver.session();
         String query =
                 "MATCH (u:USER{userName:{userName}}), (m:MOVIE) where not (u)-->(m)" +
-                        " with m , u"+
+                        " with m , u" +
                         " match (n:USER)-[:SCORED]->(m)" +
                         " where n.male = u.male " +
                         " and (n.age - 8) < u.age and u.age < (n.age + 8)" +
