@@ -2,7 +2,6 @@ package neo4j.ir;
 
 import neo4j.ir.Service.UserService;
 import neo4j.ir.nodes.User;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -14,14 +13,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class InitData implements ApplicationListener<ContextRefreshedEvent> {
 
-    GraphDatabaseService db;
-
     UserService userService;
 
 
     @Autowired
-    public InitData(GraphDatabaseService db, UserService userService) {
-        this.db = db;
+    public InitData(UserService userService) {
         this.userService = userService;
     }
 
