@@ -1,121 +1,157 @@
 package neo4j.ir.Service;
 
 import neo4j.ir.nodes.Film;
-import neo4j.ir.nodes.RelationshipTypes;
-import neo4j.ir.nodes.Types;
 import neo4j.ir.nodes.User;
-import org.neo4j.graphdb.*;
+import org.neo4j.driver.v1.Driver;
+import org.neo4j.driver.v1.Record;
+import org.neo4j.driver.v1.Session;
+import org.neo4j.driver.v1.StatementResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+
+import static org.neo4j.driver.v1.Values.parameters;
 
 /**
  * Created by Ali Asghar on 28/06/2017.
  */
 
 @Service
-@Component
 public class UserService {
 
-    private final GraphDatabaseService db;
+    final Driver driver;
 
-    private final FilmService filmService;
 
     @Autowired
-    public UserService(GraphDatabaseService db, FilmService filmService) {
-        this.db = db;
-        this.filmService = filmService;
+    public UserService(Driver driver) {
+        this.driver = driver;
     }
 
-
-    public void add(User newUser) throws Exception {
-        if (getNode(newUser.getUserName()) != null) {
-            throw new Exception("This user already exits");
-        }
-        Node node = db.createNode();
-        convertToNode(node, newUser);
+    public boolean exists(String userName) {
+        Session s = driver.session();
+        String query = "MATCH (n:USER {userName:{userName}}) return n.userName";
+        StatementResult sr = s.run(query, parameters("userName", userName));
+        s.close();
+        return sr.hasNext();
     }
 
-    public User update(User newUser) throws Exception {
-        Node oldNode = getNode(newUser.getUserName());
-        if (oldNode == null)
-            throw new Exception("This user doesn't exits");
-        convertToNode(oldNode, newUser);
-        return newUser;
+    public void add(User newUser) {
+        if (exists(newUser.getUserName()))
+            return;
+        Session session = driver.session();
+        String query = "CREATE (u:USER {firstName:{firstName}, lastName:{lastName}, " +
+                "userName:{userName}, password:{password}})";
+        session.run(query, parameters("firstName", newUser.getFirstName(),
+                "lastName", newUser.getLastName(),
+                "userName", newUser.getUserName(),
+                "password", newUser.getPassword()));
+        session.close();
+    }
+
+    public void update(User newUser) {
+        if (!exists(newUser.getUserName()))
+            return;
+        Session session = driver.session();
+        String query = "MATCH (u:USER) WHERE u.userName = {userName} SET u.firstName = {firstName} " +
+                ", u.lastName = {lastName}, u.password = {password}";
+        session.run(query, parameters("userName", newUser.getUserName(),
+                "firstName", newUser.getFirstName(),
+                "lastName", newUser.getLastName(),
+                "password", newUser.getPassword()));
+        session.close();
     }
 
     public List<User> getAllUsers() {
-        ResourceIterator<Node> nodes = db.findNodes(Types.USER);
-        List<User> users = new ArrayList<>();
-        while (nodes.hasNext()) {
-            Node n = nodes.next();
-            users.add(convertToUser(n));
-        }
-
+        List<User> users;
+        Session session = driver.session();
+        StatementResult sr = session.run("MATCH (u:USER) return u.firstName as firstName" +
+                ", u.lastName as lastName" +
+                ", u.userName as userName" +
+                ", u.password as password" +
+                ", id(u) as id");
+        users = convertToUser(sr);
+        session.close();
         return users;
     }
 
-    public Node getNode(String userName) {
-        return db.findNode(Types.USER, "userName", userName);
-    }
-
-    private User convertToUser(Node n) {
-        User user = new User();
-        user.setFirstName((String) n.getProperty("firstName"));
-        user.setLastName((String) n.getProperty("lastName"));
-        user.setUserName((String) n.getProperty("userName"));
-        user.setPassword(((String) n.getProperty("password")));
-        return user;
-    }
-
-    private void convertToNode(Node n, User u) {
-        n.setProperty("userName", u.getUserName());
-        n.setProperty("password", u.getPassword());
-        n.setProperty("firstName", u.getFirstName());
-        n.setProperty("lastName", u.getLastName());
-        n.setProperty("type", Types.USER.name());
-        n.addLabel(Types.USER);
+    public List<User> convertToUser(StatementResult sr) {
+        List<User> users = new ArrayList<>();
+        while (sr.hasNext()) {
+            Record r = sr.next();
+            User u = new User(r.get("firstName").asString(),
+                    r.get("lastName").asString(),
+                    r.get("userName").asString(),
+                    r.get("password").asString(),
+                    r.get("id").asInt());
+            users.add(u);
+        }
+        return users;
     }
 
     public User getUser(String userName) {
-        Transaction tx = db.beginTx();
-        Node n = getNode(userName);
-        if (n != null) {
-            User u = convertToUser(n);
-            tx.success();
-            return u;
-        }
-        tx.success();
-        return null;
+        Session session = driver.session();
+        StatementResult sr = session.run("MATCH (u:USER) WHERE u.userName = {userName} " +
+                        "return u.firstName as firstName" +
+                        ", u.lastName as lastName" +
+                        ", u.userName as userName" +
+                        ", u.password as password" +
+                        ", ID(u) as id"
+                , parameters("userName", userName));
+        User u = convertToUser(sr).get(0);
+        session.close();
+        return u;
     }
 
     public List<User> getFriendsList(String currentUser) {
-        Node current = getNode(currentUser);
-        List<User> friends = new ArrayList<>();
-        for (Relationship r : current.getRelationships(RelationshipTypes.IS_FRIEND)) {
-            friends.add(convertToUser(r.getOtherNode(current)));
-        }
+        List<User> friends;
+        Session session = driver.session();
+        StatementResult sr = session.run("MATCH (u1:USER {userName:{userName}})-[:IS_FRIEND]->(u:USER) " +
+                        "return u.firstName as firstName" +
+                        ", u.lastName as lastName" +
+                        ", u.userName as userName" +
+                        ", u.password as password" +
+                        ", id(u) as id"
+                , parameters("userName", currentUser));
+        friends = convertToUser(sr);
+        session.close();
         return friends;
     }
 
     public void createRelationToUser(String currentUser, String userName) {
-        Node current = getNode(currentUser);
-        Node friend = getNode(userName);
-        current.createRelationshipTo(friend, RelationshipTypes.IS_FRIEND);
+        Session session = driver.session();
+        String query = "MATCH (u1:USER), (u2:USER) " +
+                "WHERE u1.userName = {userName1}" +
+                "and u2.userName = {userName2} " +
+                "CREATE (u1)-[:IS_FRIEND]->(u2)";
+        session.run(query, parameters("userName1", currentUser, "userName2", userName));
+        session.close();
     }
 
     public List<Film> getRelatedFilms(String user) {
-        Node n = getNode(user);
-        Iterator<Relationship> it = n.getRelationships(RelationshipTypes.COMMENTED, RelationshipTypes.SCORED).iterator();
         List<Film> films = new ArrayList<>();
-        while (it.hasNext()){
-            Relationship r = it.next();
-            films.add(filmService.convertToFilm(r.getOtherNode(n)));
+        Session session = driver.session();
+        String query = "MATCH (u:USER {userName:{userName}})-->(f:FILM) return f.name as name";
+        StatementResult sr = session.run(query, parameters("userName", user));
+        while (sr.hasNext()) {
+            Record r = sr.next();
+            films.add(new Film(r.get("name").asString()));
         }
+        session.close();
+
         return films;
+    }
+
+    public int getID(String userName){
+        return getUser(userName).getId();
+    }
+
+    public void addComment(String username, int id, String comment, int score) {
+        Session session = driver.session();
+        String query = "MATCH (u:User {userName:{userName}}), (i) where id(i) = {id} " +
+                "create (u)-[:COMMENTED {comment:{comment}, score:{score}}]->(i)";
+        session.run(query, parameters("userName",username, "id", id, "comment", comment, "score", score));
+        session.close();
     }
 }
