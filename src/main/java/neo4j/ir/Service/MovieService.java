@@ -274,7 +274,7 @@ public class MovieService {
         query = "MATCH (u:USER)-[c:COMMENTED]->(m:MOVIE)" +
                 " WHERE ID(m) = {id}" +
                 " SET m.score = {score}";
-        s.run(query, parameters("score", lastScore));
+        s.run(query, parameters("id", movieId,"score", lastScore));
         s.close();
     }
 }
