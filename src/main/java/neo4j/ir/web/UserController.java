@@ -2,7 +2,7 @@ package neo4j.ir.web;
 
 import neo4j.ir.Service.SecurityHelper;
 import neo4j.ir.Service.UserService;
-import neo4j.ir.nodes.Film;
+import neo4j.ir.nodes.Movie;
 import neo4j.ir.nodes.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -56,7 +56,7 @@ public class UserController {
 
     @GetMapping("/page")
     public ResponseEntity getUserPage(){
-        List<Film> films = userService.getRelatedMovies(securityHelper.getCurrentUserUserName());
+        List<Movie> films = userService.getRelatedMovies(securityHelper.getCurrentUserUserName());
         return ResponseEntity.ok(films);
     }
 
