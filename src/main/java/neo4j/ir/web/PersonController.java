@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 /**
  * Created by Ali Asghar on 29/06/2017.
  */
@@ -31,4 +33,5 @@ public class PersonController {
     public ResponseEntity getAll(){
         return ResponseEntity.ok(personService.getAll());
     }
+
 }

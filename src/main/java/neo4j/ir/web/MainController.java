@@ -23,17 +23,28 @@ public class MainController {
     private SecurityHelper securityHelper;
     @Autowired
     private MovieService movieService;
+    @Autowired
+    private UserService userService;
 
     @GetMapping("/")
     public String welcome(Map<String,Object> model){
 
         User currentUser = securityHelper.getCurrentUser();
 
+        List<User> friends = userService.getFriendsList(currentUser.getUserName());
+        List<User> users = userService.getAllUsers();
+        List<Movie> items = movieService.getAll();
+
+        users.removeAll(friends);
+        users.remove(currentUser);
+
         model.put("userName",currentUser.getUserName());
         model.put("firstName",currentUser.getFirstName());
         model.put("lastName",currentUser.getLastName());
 
-        model.put("test",movieService.getAll());
+        model.put("items",items);
+        model.put("friends",friends);
+        model.put("users",users);
 
         return "index";
     }

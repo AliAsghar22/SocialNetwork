@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Ali Asghar on 28/06/2017.
@@ -42,8 +43,8 @@ public class UserController {
 
     }
 
-    @GetMapping("/addFriendship")
-    public ResponseEntity addRelation(@RequestParam("userName") String userName){
+    @PostMapping("/addFriendship")
+    public ResponseEntity addRelation(@RequestBody String userName){
         String currentUser = securityHelper.getCurrentUserUserName();
         userService.createRelationToUser(currentUser, userName);
         return ResponseEntity.ok("created relation");
@@ -74,5 +75,21 @@ public class UserController {
         String username = securityHelper.getCurrentUserUserName();
         userService.addScore(username, scoreDTO.getId(), scoreDTO.getScore());
         return ResponseEntity.ok("added");
+    }
+
+    @GetMapping(value = "/{username}")
+    public String getDetail(@PathVariable("username") String username,Map<String,Object> model){
+
+        User user = userService.getUser(username);
+        List<User> friends = userService.getFriendsList(securityHelper.getCurrentUserUserName());
+        boolean isFriend = false;
+
+        if(friends.contains(user))
+            isFriend = true;
+
+        model.put("user",user);
+        model.put("isFriend",isFriend);
+
+        return "Profile";
     }
 }

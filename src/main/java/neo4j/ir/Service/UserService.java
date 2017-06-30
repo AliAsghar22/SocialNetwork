@@ -141,6 +141,7 @@ public class UserService {
                 "and u2.userName = {userName2} " +
                 "CREATE (u1)-[:IS_FRIEND]->(u2)";
         session.run(query, parameters("userName1", currentUser, "userName2", userName));
+        System.out.println("finished");
         session.close();
     }
 

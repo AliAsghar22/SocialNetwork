@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8"/>
+    <title>${user.userName}</title>
+    <script>
+        function friend(user) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST","/user/addFriendship",true);
+            xhr.send(user);
+
+            xhr.onreadystatechange = function () {
+                if (this.readyState != 4) return;
+                if (this.status == 200) {
+                    location.reload();
+                }
+            };
+        }
+    </script>
+</head>
+<body>
+    <div th:switch="${isFriend}">
+        <button th:case="true" disabled="true">You are friends</button>
+        <button th:case="false" th:onclick="'friend(\'' + ${user.userName} + '\');'">friend</button>
+    </div>
+</body>
+</html>

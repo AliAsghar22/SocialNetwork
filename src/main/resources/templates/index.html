@@ -24,16 +24,34 @@
             <th style="padding-left: 60%">Movie Suggestions</th>
         </tr>
         <tr>
-            <td></td>
-            <td style="padding-left: 20%"></td>
+            <td>
+                <ul>
+                    <li th:each="friend : ${friends}">
+                        <a th:href="|/user/${friend.userName}|" th:text="|${friend.firstName + ' ' + friend.lastName}"></a>
+                    </li>
+                </ul>
+            </td>
+            <td style="padding-left: 20%">
+                <ul>
+                    <li th:each="user : ${users}">
+                        <a th:href="|/user/${user.userName}|" th:text="|${user.firstName + ' ' + user.lastName}"></a>
+                    </li>
+                </ul>
+            </td>
             <td style="padding-left: 40%">
                 <ul>
-                    <li th:each="item : ${test}">
+                    <li th:each="item : ${seemItems}">
                         <a th:href="|/movie/${item.title}|" th:text="${item.title}"></a>
                     </li>
                 </ul>
             </td>
-            <td style="padding-left: 60%"></td>
+            <td style="padding-left: 60%">
+                <ul>
+                    <li th:each="item : ${items}">
+                        <a th:href="|/movie/${item.title}|" th:text="${item.title}"></a>
+                    </li>
+                </ul>
+            </td>
         </tr>
     </table>
 </body>

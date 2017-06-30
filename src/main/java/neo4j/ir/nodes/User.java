@@ -96,4 +96,12 @@ public class User {
     public void setMale(boolean male) {
         this.male = male;
     }
+
+    @Override
+    public boolean equals(Object u)
+    {
+        User user = (User)u;
+
+        return this.userName.equals(user.getUserName());
+    }
 }
