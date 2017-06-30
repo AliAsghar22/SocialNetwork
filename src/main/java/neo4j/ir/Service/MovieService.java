@@ -6,12 +6,10 @@ import neo4j.ir.nodes.Movie;
 import neo4j.ir.nodes.Person;
 import neo4j.ir.web.dto.MovieDTO;
 import neo4j.ir.web.dto.MovieSearchDTO;
-import org.neo4j.driver.v1.Driver;
-import org.neo4j.driver.v1.Record;
-import org.neo4j.driver.v1.Session;
-import org.neo4j.driver.v1.StatementResult;
+import org.neo4j.driver.v1.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import sun.java2d.pipe.ValidatePipe;
 
 import java.util.*;
 
@@ -361,5 +359,64 @@ public class MovieService {
         List<Movie> movies = convertToMovies(sr);
         s.close();
         return movies;
+    }
+
+    public Double getScore(String userName,int movieId)
+    {
+        Session session = driver.session();
+        String query =
+                "MATCH (u:USER{userName:{userName}})-[s:SCORED]->(m:MOVIE)" +
+                        "WHERE ID(m) = {movieId}" +
+                        "return s.score";
+
+        StatementResult sr = session.run(query,parameters("userName",userName,"movieId",movieId));
+
+        if(!sr.hasNext())
+            return null;
+
+        Value value = sr.next().values().get(0);
+        if(value == null)
+            return null;
+
+        return value.asDouble();
+    }
+
+    public String getComment(String userName,int movieId)
+    {
+        Session session = driver.session();
+        String query =
+                "MATCH (u:USER{userName:{userName}})-[c:COMMENTED]->(m:MOVIE)" +
+                        "WHERE ID(m) = {movieId}" +
+                        "return c.comment";
+
+        StatementResult sr = session.run(query,parameters("userName",userName,"movieId",movieId));
+
+        if(!sr.hasNext())
+            return null;
+
+        Value value = sr.next().values().get(0);
+        if(value == null)
+            return null;
+
+        return value.asString();
+    }
+
+    public List<Movie> getSeenMovies(String userName)
+    {
+        Session session = driver.session();
+
+        String query = "MATCH (u:USER{userName:{userName}})-->(m:MOVIE)" +
+                " return distinct ID(m) as id," +
+                " m.title as title," +
+                " m.duration as duration," +
+                " m.imageURL as imageURL," +
+                " m.productionDate as productionDate," +
+                " m.rate as rate," +
+                " m.tagline as tagline";
+
+        StatementResult sr = session.run(query,parameters("userName",userName));
+        List<Movie> m = convertToMovies(sr);
+        session.close();
+        return m;
     }
 }

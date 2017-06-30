@@ -79,4 +79,12 @@ public class Movie {
     public void setRate(float rate) {
         this.rate = rate;
     }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        Movie m = (Movie)o;
+
+        return m.getId() == id;
+    }
 }

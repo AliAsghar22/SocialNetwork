@@ -2,18 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Register</title>
+    <title>edit profile</title>
     <script>
-        function register() {
+        function edit() {
             var firstName = document.getElementById("firstName").value;
-            var lastName = document.getElementById("lastName").value;
-            var userName = document.getElementById("userName").value;
+            var lastName = document.getElementById("lastName").value;;
             var password = document.getElementById("password").value;
             var age = document.getElementById("age").value;
             var gender = document.querySelector('input[name="gender"]:checked').value;
 
             var xhr = new XMLHttpRequest();
-            xhr.open("POST","/user/add",true);
+            xhr.open("POST","/user/edit",true);
             xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
 
             var gen = false;
@@ -23,7 +22,6 @@
             var data = {
                 'firstName':firstName,
                 'lastName':lastName,
-                'userName':userName,
                 'password':password,
                 'age':age,
                 'male':gen
@@ -41,19 +39,15 @@
     </script>
 </head>
 <body>
-
+    <input type="text" name="firstName" id="firstName">  first name<br>
+    <input type="text" name="lastName" id="lastName">  last name<br>
+    <input type="password" name="password" id="password">  password<br>
     <div>
-        <input type="text" name="firstName" id="firstName">  first name<br>
-        <input type="text" name="lastName" id="lastName">  last name<br>
-        <input type="text" name="userName" id="userName">  username<br>
-        <input type="password" name="password" id="password">  password<br>
-        <div>
-            <input type="radio" name="gender" value="male"/> male
-            <input type="radio" name="gender" value="female"/> female
-        </div>
-        <br>
-        <input type="text" name="age" id="age"> age<br>
-        <button onclick="register()" type="submit">Sign Up</button><br>
+        <input type="radio" name="gender" value="male"/> male
+        <input type="radio" name="gender" value="female"/> female
     </div>
+    <br>
+    <input type="text" name="age" id="age"> age<br>
+    <button onclick="edit()" type="submit">submit</button><br>
 </body>
 </html>

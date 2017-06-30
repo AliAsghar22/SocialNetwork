@@ -70,15 +70,20 @@ public class MovieController {
 
     @GetMapping(value = "/{movieId}")
     public String getDetail(@PathVariable("movieId") String movieId,Map<String,Object> model){
+
+        String userName = securityHelper.getCurrentUserUserName();
+
         MovieDTO movieDTO = new MovieDTO();
         movieDTO.setMovie(movieService.getByTitle(movieId));
-//        movieDTO.setDirector(personService.getMovieDirector(movieId));
-//        movieDTO.setProducer(personService.getMovieProducer(movieId));
-//        movieDTO.setWriter(personService.getMovieWriter(movieId));
-//        movieDTO.setActors(personService.getMovieActors(movieId));
-//        movieDTO.setGenres(genreService.getMovieGenres(movieId));
-//        movieDTO.setKeywords(keywordService.getMovieKeywords(movieId));
 
+        String comment = movieService.getComment(userName,movieDTO.getMovie().getId());
+
+        Double score = movieService.getScore(userName,movieDTO.getMovie().getId());
+
+        model.put("commented",comment!=null);
+        model.put("yourComment",comment);
+        model.put("scored",score!=null);
+        model.put("yourScore",score);
         model.put("movie",movieDTO.getMovie());
 
         return "MovieDetail";

@@ -58,8 +58,8 @@ public class UserService {
         if (!exists(newUser.getUserName()))
             return;
         Session session = driver.session();
-        String query = "MATCH (u:USER) WHERE u.userName = {userName} SET u.firstName = {firstName} " +
-                ", u.lastName = {lastName}, u.password = {password} , age:{age}, male:{male}";
+        String query = "MATCH (u:USER{userName:{userName}}) SET u.firstName={firstName}" +
+                ",u.lastName={lastName},u.password={password},u.age={age},u.male={male}";
         session.run(query, parameters("userName", newUser.getUserName(),
                 "firstName", newUser.getFirstName(),
                 "lastName", newUser.getLastName(),
@@ -93,9 +93,9 @@ public class UserService {
             u.setLastName(r.get("lastName").asString());
             u.setPassword(r.get("password").asString());
             u.setUserName(r.get("userName").asString());
-//            u.setId(r.get("id").asInt());
-//            u.setAge(r.get("age").asInt());
-//            u.setMale(r.get("male").asBoolean());
+            u.setId(r.get("id").asInt());
+            u.setAge(r.get("age").asInt());
+            u.setMale(r.get("male").asBoolean());
             users.add(u);
         }
         return users;
@@ -112,9 +112,14 @@ public class UserService {
                         ", u.male as male" +
                         ", u.age as age"
                 , parameters("userName", userName));
-        User u = convertToUser(sr).get(0);
+
+        List<User> u = convertToUser(sr);
+        if(u == null || u.isEmpty())
+            return null;
+
+        User user = u.get(0);
         session.close();
-        return u;
+        return user;
     }
 
     public List<User> getFriendsList(String currentUser) {
@@ -141,7 +146,6 @@ public class UserService {
                 "and u2.userName = {userName2} " +
                 "CREATE (u1)-[:IS_FRIEND]->(u2)";
         session.run(query, parameters("userName1", currentUser, "userName2", userName));
-        System.out.println("finished");
         session.close();
     }
 

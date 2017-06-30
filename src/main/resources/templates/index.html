@@ -10,10 +10,13 @@
     </p>
 
     <div style="text-align: center">
-        <div th:text="'username: ' + ${userName}"></div>
-        <div th:text="'first name: ' + ${firstName}"></div>
-        <div th:text="'last name: ' + ${lastName}"></div>
+        <div th:text="'username: ' + ${user.userName}"></div>
+        <div th:text="'first name: ' + ${user.firstName}"></div>
+        <div th:text="'last name: ' + ${user.lastName}"></div>
+        <div th:text="'age: ' + ${user.age}"></div>
+        <div th:text="'gender: ' + ${gender}"></div>
         <a href="/logout">logout</a>
+        <a href="/editProfile.html">edit profile</a>
     </div>
 
     <table align="center" style="padding-top: 2%">
@@ -40,8 +43,8 @@
             </td>
             <td style="padding-left: 40%">
                 <ul>
-                    <li th:each="item : ${seemItems}">
-                        <a th:href="|/movie/${item.title}|" th:text="${item.title}"></a>
+                    <li th:each="seenItem : ${seenItems}">
+                        <a th:href="|/movie/${seenItem.title}|" th:text="${seenItem.title}"></a>
                     </li>
                 </ul>
             </td>

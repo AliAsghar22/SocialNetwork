@@ -34,14 +34,16 @@ public class MainController {
         List<User> friends = userService.getFriendsList(currentUser.getUserName());
         List<User> users = userService.getAllUsers();
         List<Movie> items = movieService.getAll();
+        List<Movie> seenItems = movieService.getSeenMovies(currentUser.getUserName());
 
         users.removeAll(friends);
         users.remove(currentUser);
+        items.removeAll(seenItems);
 
-        model.put("userName",currentUser.getUserName());
-        model.put("firstName",currentUser.getFirstName());
-        model.put("lastName",currentUser.getLastName());
+        model.put("user",currentUser);
+        model.put("gender",currentUser.isMale()?"male":"female");
 
+        model.put("seenItems",seenItems);
         model.put("items",items);
         model.put("friends",friends);
         model.put("users",users);

@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8"/>
-    <title>${user.userName}</title>
+    <title th:text="${user.userName}"></title>
     <script>
         function friend(user) {
             var xhr = new XMLHttpRequest();
@@ -19,9 +19,42 @@
     </script>
 </head>
 <body>
-    <div th:switch="${isFriend}">
-        <button th:case="true" disabled="true">You are friends</button>
-        <button th:case="false" th:onclick="'friend(\'' + ${user.userName} + '\');'">friend</button>
+    <div style="text-align: center">
+        <div th:text="'username: ' + ${user.userName}"></div>
+        <div th:text="'first name: ' + ${user.firstName}"></div>
+        <div th:text="'last name: ' + ${user.lastName}"></div>
+        <div th:text="'age: ' + ${user.age}"></div>
+        <div th:text="'gender: ' + ${gender}"></div>
+        <div th:switch="${isFriend}">
+            <button th:case="true" disabled="true">You are friends</button>
+            <button th:case="false" th:onclick="'friend(\'' + ${user.userName} + '\');'">friend</button>
+        </div>
     </div>
+
+    <table align="center" style="padding-top: 2%">
+        <tr>
+            <th>Friends</th>
+            <th style="padding-left: 20%">Friend Suggestions</th>
+            <th style="padding-left: 40%">Movies</th>
+            <th style="padding-left: 60%">Movie Suggestions</th>
+        </tr>
+        <tr>
+            <td>
+                <ul>
+                    <li th:each="friend : ${friends}">
+                        <a th:href="|/user/${friend.userName}|" th:text="|${friend.firstName + ' ' + friend.lastName}"></a>
+                    </li>
+                </ul>
+            </td>
+            <td style="padding-left: 40%">
+                <ul>
+                    <li th:each="seenItem : ${seenItems}">
+                        <a th:href="|/movie/${seenItem.title}|" th:text="${seenItem.title}"></a>
+                    </li>
+                </ul>
+            </td>
+        </tr>
+    </table>
+
 </body>
 </html>

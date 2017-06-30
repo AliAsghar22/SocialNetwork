@@ -1,5 +1,6 @@
 package neo4j.ir.web;
 
+import neo4j.ir.Service.MovieService;
 import neo4j.ir.Service.SecurityHelper;
 import neo4j.ir.Service.UserService;
 import neo4j.ir.nodes.Movie;
@@ -21,17 +22,23 @@ import java.util.Map;
 @RequestMapping("/user")
 public class UserController {
 
-    @Autowired UserService userService;
-    @Autowired SecurityHelper securityHelper;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private SecurityHelper securityHelper;
+    @Autowired
+    private MovieService movieService;
+
 
     @PostMapping("/edit")
     public ResponseEntity editUser(@RequestBody User user) {
+        user.setUserName(securityHelper.getCurrentUserUserName());
         userService.update(user);
         return ResponseEntity.ok().body("hello");
     }
 
     @PostMapping("/add")
-    public ResponseEntity addUser(User user) {
+    public ResponseEntity addUser(@RequestBody User user) {
         userService.add(user);
         return ResponseEntity.ok().body("hello");
     }
@@ -87,7 +94,13 @@ public class UserController {
         if(friends.contains(user))
             isFriend = true;
 
+        List<User> profileOwnerFriends = userService.getFriendsList(username);
+        List<Movie> seenMovies = movieService.getSeenMovies(username);
+
+        model.put("seenItems",seenMovies);
+        model.put("friends",profileOwnerFriends);
         model.put("user",user);
+        model.put("gender",user.isMale()?"male":"female");
         model.put("isFriend",isFriend);
 
         return "Profile";
