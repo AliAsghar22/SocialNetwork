@@ -12,9 +12,6 @@ public class CommentDTO {
     @JsonProperty
     private int itemId;
 
-    @JsonProperty
-    private int score;
-
     public String getBody() {
         return body;
     }
@@ -31,11 +28,4 @@ public class CommentDTO {
         this.itemId = itemId;
     }
 
-    public int getScore() {
-        return score;
-    }
-
-    public void setScore(int score) {
-        this.score = score;
-    }
 }

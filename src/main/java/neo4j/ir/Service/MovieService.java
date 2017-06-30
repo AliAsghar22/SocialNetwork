@@ -159,7 +159,7 @@ public class MovieService {
             m.setDuration(r.get("duration").asInt());
             m.setImageURL(r.get("imageURL").asString());
             m.setProductionDate(r.get("productionDate").asLong());
-            m.setRate(r.get("rate").asInt());
+            m.setRate(r.get("rate").asFloat());
             m.setTagline(r.get("tagline").asString());
             movies.add(m);
         }
@@ -262,19 +262,21 @@ public class MovieService {
 
     public void calculateRate(int movieId){
         Session s = driver.session();
-        String query = "MATCH (u:USER)-[c:COMMENTED]->(m:MOVIE)" +
+        String query = "MATCH (u:USER)-[c:SCORED]->(m:MOVIE)" +
                 " WHERE ID(m) = {id}" +
                 " return count(u) as count" +
                 " , sum(c.score) as score";
         StatementResult sr = s.run(query, parameters("id", movieId));
-        int count = sr.next().get("count").asInt();
-        float score = sr.next().get("score").asFloat();
+        Record r = sr.next();
+        int count = r.get("count").asInt();
+        float score = r.get("score").asFloat();
         float lastScore = score/count;
 
-        query = "MATCH (u:USER)-[c:COMMENTED]->(m:MOVIE)" +
+        query = "MATCH (m:MOVIE) " +
                 " WHERE ID(m) = {id}" +
-                " SET m.score = {score}";
-        s.run(query, parameters("id", movieId,"score", lastScore));
+                " SET m.rate = {rate}";
+
+        s.run(query, parameters("id", movieId,"rate", lastScore));
         s.close();
     }
 }

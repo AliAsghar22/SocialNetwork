@@ -5,6 +5,7 @@ import neo4j.ir.Service.UserService;
 import neo4j.ir.nodes.Movie;
 import neo4j.ir.nodes.User;
 import neo4j.ir.web.dto.CommentDTO;
+import neo4j.ir.web.dto.ScoreDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -64,7 +65,14 @@ public class UserController {
     @PostMapping("/addComment")
     public ResponseEntity addComment(@RequestBody CommentDTO commentDTO) {
         String username = securityHelper.getCurrentUserUserName();
-        userService.addComment(username,commentDTO.getItemId(), commentDTO.getBody(), commentDTO.getScore());
+        userService.addComment(username,commentDTO.getItemId(), commentDTO.getBody());
+        return ResponseEntity.ok("added");
+    }
+
+    @PostMapping("/addScore")
+    public ResponseEntity addScore(@RequestBody ScoreDTO scoreDTO) {
+        String username = securityHelper.getCurrentUserUserName();
+        userService.addScore(username, scoreDTO.getId(), scoreDTO.getScore());
         return ResponseEntity.ok("added");
     }
 }

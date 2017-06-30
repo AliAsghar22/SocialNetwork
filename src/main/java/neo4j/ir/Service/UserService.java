@@ -150,11 +150,19 @@ public class UserService {
         return getUser(userName).getId();
     }
 
-    public void addComment(String username, int id, String comment, int score) {
+    public void addComment(String username, int id, String comment) {
         Session session = driver.session();
         String query = "MATCH (u:USER), (item) where ID(item) = {id} and u.userName = {userName} " +
-                "create (u)-[:COMMENTED {comment:{comment}, score:{score}}]->(item)";
-        session.run(query, parameters("userName",username, "id", id, "comment", comment, "score", score));
+                "create (u)-[:COMMENTED {comment:{comment}}]->(item)";
+        session.run(query, parameters("userName",username, "id", id, "comment", comment));
+        session.close();
+    }
+
+    public void addScore(String username, int id, float score){
+        Session session = driver.session();
+        String query = "MATCH (u:USER), (item) where ID(item) = {id} and u.userName = {userName} " +
+                "create UNIQUE  (u)-[s:SCORED]->(item) set s.score = {score}";
+        session.run(query, parameters("userName",username, "id", id, "score", score));
         session.close();
         movieService.calculateRate(id);
     }

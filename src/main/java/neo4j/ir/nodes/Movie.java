@@ -13,7 +13,7 @@ public class Movie {
     @JsonProperty String summary;
     @JsonProperty String imageURL;
     @JsonProperty int duration;
-    @JsonProperty int rate;
+    @JsonProperty float rate;
     @JsonProperty long productionDate;
 
     public long getProductionDate() {
@@ -72,11 +72,11 @@ public class Movie {
         this.duration = duration;
     }
 
-    public int getRate() {
+    public float getRate() {
         return rate;
     }
 
-    public void setRate(int rate) {
+    public void setRate(float rate) {
         this.rate = rate;
     }
 }
