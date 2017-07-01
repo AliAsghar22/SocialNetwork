@@ -50,7 +50,9 @@
     </script>
 </head>
 <body>
-    <div th:text="${movie.title}"></div>
+    <div th:text="|title: ${movie.title}|"></div>
+    <div th:text="|year: ${movie.productionDate}|"></div>
+    <div th:text="|rate: ${movie.rate}|"></div>
 
     <div th:if="${commented}">
         <p th:text="|your comment: ${yourComment}|"></p>

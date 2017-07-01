@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.neo4j.driver.v1.Values.parameters;
 
@@ -194,4 +196,38 @@ public class UserService {
 //        session.run(query, parameters("userName", userName));
 //        session.close();
 //    }
+
+    public List<User> suggestFriend(String userName) {
+        Session session = driver.session();
+        String query = "MATCH (u:USER{userName:{userName}})-[*]->(n:USER)" +
+                " WHERE not (u)-[:IS_FRIEND]->(n)" +
+                "return distinct n.userName as userName" +
+                ", n.lastName as lastName" +
+                ", n.firstName as firstName" +
+                ", n.password as password" +
+                ", id(n) as id" +
+                ", n.male as male" +
+                ", n.age as age";
+        StatementResult sr = session.run(query, parameters("userName", userName));
+        List<User> suggestions = convertToUser(sr);
+
+        String query2 = "MATCH (u:USER)-[*]->(n:USER{userName:{userName}})" +
+                "return distinct u.userName as userName" +
+                ", u.lastName as lastName" +
+                ", u.firstName as firstName" +
+                ", u.password as password" +
+                ", id(u) as id" +
+                ", u.male as male" +
+                ", u.age as age";
+        StatementResult sr2 = session.run(query2, parameters("userName", userName));
+        List<User> suggestions2 = convertToUser(sr2);
+
+        Set<User> result = new HashSet<>();
+        result.addAll(suggestions);
+        result.addAll(suggestions2);
+
+        session.close();
+
+        return new ArrayList<>(result);
+    }
 }

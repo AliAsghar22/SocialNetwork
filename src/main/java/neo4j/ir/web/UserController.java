@@ -44,10 +44,13 @@ public class UserController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List> getAllUsers(){
+    public String getAllUsers(Map<String,Object> model){
         List<User> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
+        model.put("people",users);
 
+        users.remove(securityHelper.getCurrentUser());
+
+        return "People";
     }
 
     @PostMapping("/addFriendship")

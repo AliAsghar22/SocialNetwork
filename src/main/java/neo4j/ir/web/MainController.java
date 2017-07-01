@@ -9,9 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Ali Asghar on 28/06/2017.
@@ -32,19 +30,22 @@ public class MainController {
         User currentUser = securityHelper.getCurrentUser();
 
         List<User> friends = userService.getFriendsList(currentUser.getUserName());
-        List<User> users = userService.getAllUsers();
-        List<Movie> items = movieService.getAll();
+        List<User> users = userService.suggestFriend(currentUser.getUserName());
+
+        Set<Movie> movieSet = new HashSet<>();
+        movieSet.addAll(movieService.suggestByGenre(currentUser.getUserName()));
+        movieSet.addAll(movieService.suggestByOtherPeople(currentUser.getUserName()));
+
         List<Movie> seenItems = movieService.getSeenMovies(currentUser.getUserName());
 
-        users.removeAll(friends);
         users.remove(currentUser);
-        items.removeAll(seenItems);
+        movieSet.removeAll(seenItems);
 
         model.put("user",currentUser);
         model.put("gender",currentUser.isMale()?"male":"female");
 
         model.put("seenItems",seenItems);
-        model.put("items",items);
+        model.put("items",movieSet);
         model.put("friends",friends);
         model.put("users",users);
 

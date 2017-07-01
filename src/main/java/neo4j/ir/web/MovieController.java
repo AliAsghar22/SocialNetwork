@@ -6,6 +6,7 @@ import neo4j.ir.Service.KeywordService;
 import neo4j.ir.Service.MovieService;
 import neo4j.ir.Service.PersonService;
 import neo4j.ir.Service.*;
+import neo4j.ir.nodes.Movie;
 import neo4j.ir.web.dto.MovieDTO;
 import neo4j.ir.web.dto.MovieSearchDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -103,4 +105,15 @@ public class MovieController {
     public ResponseEntity suggestByOtherPeople(){
         return ResponseEntity.ok(movieService.suggestByOtherPeople(securityHelper.getCurrentUserUserName()));
     }
+
+    @GetMapping("/list")
+    public String list(Map<String,Object> model)
+    {
+        model.put("searchResult",movieService.getAll());
+        model.put("top5",movieService.getTop5());
+        model.put("recent",movieService.getLatest());
+
+        return "Movies";
+    }
+
 }

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8"/>
+    <title>movies</title>
+</head>
+
+<body>
+    <table align="center" style="padding-top: 2%">
+        <tr>
+            <th>Search Result</th>
+            <th style="padding-left: 20%">Top 5</th>
+            <th style="padding-left: 40%">Recent</th>
+        </tr>
+        <tr>
+            <td>
+                <ul>
+                    <li th:each="item : ${searchResult}">
+                        <a th:href="|/movie/${item.title}|" th:text="|${item.title}"></a>
+                    </li>
+                </ul>
+            </td>
+            <td style="padding-left: 20%">
+                <ul>
+                    <li th:each="item : ${top5}">
+                        <a th:href="|/movie/${item.title}|" th:text="|${item.title}"></a>
+                    </li>
+                </ul>
+            </td>
+            <td style="padding-left: 40%">
+                <ul>
+                    <li th:each="item : ${recent}">
+                        <a th:href="|/movie/${item.title}|" th:text="${item.title}"></a>
+                    </li>
+                </ul>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

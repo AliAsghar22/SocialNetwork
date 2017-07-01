@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>add movie</title>
+    <script>
+        function add() {
+            var title = document.getElementById("title").value;
+            var actor1 = document.getElementById("actor1").value;
+            var actor2 = document.getElementById("actor2").value;
+            var keyword1 = document.getElementById("keyword1").value;
+            var keyword2 = document.getElementById("keyword2").value;
+            var genre1 = document.getElementById("genre1").value;
+            var genre2 = document.getElementById("genre2").value;
+            var producer = document.getElementById("producer").value;
+            var director = document.getElementById("director").value;
+            var writer = document.getElementById("writer").value;
+            var year = document.getElementById("year").value;
+
+            var data={
+                'movie':{'title':title,'productionDate':year},
+                'actors':[{'name':actor1},{'name':actor2}],
+                'keywords':[{'name':keyword1},{'name':keyword2}],
+                'genres':[{'name':genre1},{'name':genre2}],
+                'producer':{'name':producer},
+                'director':{'name':director},
+                'writer':{'name':writer}
+            };
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST","/movie/add",true);
+            xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+
+            xhr.send(JSON.stringify(data));
+
+            xhr.onreadystatechange = function () {
+                if (this.readyState != 4) return;
+                if (this.status == 200) {
+                    window.location = "/";
+                }
+            };
+        }
+    </script>
+</head>
+<body>
+    <div>
+        <input type="text" id="title">  title<br>
+        <input type="text" id="year">  year<br>
+        <input type="text" id="genre1">  genre<br>
+        <input type="text" id="genre2">  genre<br>
+        <input type="text" id="keyword1">  keyword<br>
+        <input type="text" id="keyword2">  keyword<br>
+        <input type="text" id="actor1">  actor<br>
+        <input type="text" id="actor2">  actor<br>
+        <input type="text" id="writer">  writer<br>
+        <input type="text" id="producer">  producer<br>
+        <input type="text" id="director">  director<br>
+        <button onclick="add()" type="submit">add movie</button>
+    </div>
+</body>
+</html>
