@@ -1,12 +1,7 @@
 package neo4j.ir.web;
 
 
-import neo4j.ir.Service.GenreService;
-import neo4j.ir.Service.KeywordService;
-import neo4j.ir.Service.MovieService;
-import neo4j.ir.Service.PersonService;
 import neo4j.ir.Service.*;
-import neo4j.ir.nodes.Movie;
 import neo4j.ir.web.dto.MovieDTO;
 import neo4j.ir.web.dto.MovieSearchDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,13 +113,19 @@ public class MovieController {
     {
 
         MovieSearchDTO dto = new MovieSearchDTO();
+        if(title!= null)
         dto.setTitle(title);
+        if(writer!= null)
         dto.setWriterName(writer);
+        if(direcor!= null)
         dto.setDirectorName(direcor);
+        if(year!= null)
         dto.setProductionYear(year);
         List<String> actors = new ArrayList<>();
         List<String> genres = new ArrayList<>();
+        if(actor!=null)
         actors.add(actor);
+        if(genre!=null)
         genres.add(genre);
         dto.setActorNames(actors);
         dto.setGenres(genres);

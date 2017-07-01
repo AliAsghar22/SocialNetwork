@@ -9,7 +9,6 @@ import neo4j.ir.web.dto.MovieSearchDTO;
 import org.neo4j.driver.v1.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import sun.java2d.pipe.ValidatePipe;
 
 import java.util.*;
 
@@ -181,7 +180,8 @@ public class MovieService {
                 " m.imageURL as imageURL," +
                 " m.productionDate as productionDate," +
                 " m.rate as rate," +
-                " m.tagline as tagline";
+                " m.tagline as tagline, " +
+                " m.summary as summary";
         StatementResult sr = s.run(query, parameters("title", title));
         Movie m = convertToMovies(sr).get(0);
         s.close();
@@ -197,7 +197,8 @@ public class MovieService {
                 " m.imageURL as imageURL," +
                 " m.productionDate as productionDate," +
                 " m.rate as rate," +
-                " m.tagline as tagline";
+                " m.tagline as tagline," +
+                " m.summary as summary";
         StatementResult sr = s.run(query);
         List<Movie> m = convertToMovies(sr);
         s.close();
@@ -242,7 +243,8 @@ public class MovieService {
                 " m.imageURL as imageURL," +
                 " m.productionDate as productionDate," +
                 " m.rate as rate," +
-                " m.tagline as tagline";
+                " m.tagline as tagline,"+
+                " m.summary as summary";
         Session s = driver.session();
         List<Movie> movies = convertToMovies(s.run(query));
         s.close();
@@ -258,7 +260,8 @@ public class MovieService {
                 " m.imageURL as imageURL," +
                 " m.productionDate as productionDate," +
                 " m.rate as rate," +
-                " m.tagline as tagline" +
+                " m.tagline as tagline," +
+                " m.summary as summary" +
                 " ORDER BY rate desc" +
                 " LIMIT 5";
         StatementResult sr = s.run(query);
@@ -276,7 +279,8 @@ public class MovieService {
                 " m.imageURL as imageURL," +
                 " m.productionDate as productionDate," +
                 " m.rate as rate," +
-                " m.tagline as tagline" +
+                " m.tagline as tagline,"+
+                " m.summary as summary" +
                 " ORDER BY productionDate desc" +
                 " LIMIT 20";
         StatementResult sr = s.run(query);
@@ -295,6 +299,7 @@ public class MovieService {
                 " m.imageURL as imageURL," +
                 " m.productionDate as productionDate," +
                 " m.rate as rate," +
+                " m.summary as summary,"+
                 " m.tagline as tagline";
         StatementResult sr = s.run(query, parameters("id", movieId));
         Movie m = convertToMovies(sr).get(0);
@@ -338,7 +343,8 @@ public class MovieService {
                         " m.imageURL as imageURL," +
                         " m.productionDate as productionDate," +
                         " m.rate as rate," +
-                        " m.tagline as tagline";
+                        " m.tagline as tagline,"+
+                        " m.summary as summary";
         StatementResult sr = s.run(query, parameters("userName", userName));
         List<Movie> movies = convertToMovies(sr);
         s.close();
@@ -359,7 +365,8 @@ public class MovieService {
                         " m.imageURL as imageURL," +
                         " m.productionDate as productionDate," +
                         " m.rate as rate," +
-                        " m.tagline as tagline";
+                        " m.tagline as tagline,"+
+                        " m.summary as summary";
         StatementResult sr = s.run(query, parameters("userName", userName));
         List<Movie> movies = convertToMovies(sr);
         s.close();

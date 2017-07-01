@@ -3,32 +3,211 @@
 <head>
     <meta charset="UTF-8"/>
     <title>add movie</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/>
+    <link rel="stylesheet" href="/resources/demos/style.css"/>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
+        var inputGenres;
+        var inputPeople;
+        var inputKeywords;
+        $(function () {
+                var aGenres = [];
+                var aPeople = [];
+                var aKeywords = [];
+                $.getJSON("/genre/all", function (result) {
+                    inputGenres = result;
+                    $.each(result, function (i, item) {
+                        aGenres.push(item.name);
+                    });
+                });
+                $.getJSON("/person/all", function (result) {
+                    inputPeople = result;
+                    $.each(result, function (i, item) {
+                        aPeople.push(item.name);
+                    });
+                });
+                $.getJSON("/keyword/all", function (result) {
+                    inputKeywords = result;
+                    $.each(result, function (i, item) {
+                        aKeywords.push(item.name);
+                    });
+                });
+
+                function split(val) {
+                    return val.split(/,\s*/);
+                }
+
+                function extractLast(term) {
+                    return split(term).pop();
+                }
+
+                $("#director,#writer,#producer")
+                    .autocomplete({
+                        source: aPeople
+                    });
+
+
+            $("#actor1")
+                .on("keydown", function (event) {
+                    if (event.keyCode === $.ui.keyCode.TAB &&
+                        $(this).autocomplete("instance").menu.active) {
+                        event.preventDefault();
+                    }
+                })
+                .autocomplete({
+                    minLength: 0,
+                    source: function (request, response) {
+                        // delegate back to autocomplete, but extract the last term
+                        response($.ui.autocomplete.filter(
+                            aPeople, extractLast(request.term)));
+                    },
+                    focus: function () {
+                        // prevent value inserted on focus
+                        return false;
+                    },
+                    select: function (event, ui) {
+                        var terms = split(this.value);
+                        // remove the current input
+                        terms.pop();
+                        // add the selected item
+                        terms.push(ui.item.value);
+                        // add placeholder to get the comma-and-space at the end
+                        terms.push("");
+                        this.value = terms.join(", ");
+                        return false;
+                    }
+                });
+
+                $("#genre1")
+                    .on("keydown", function (event) {
+                        if (event.keyCode === $.ui.keyCode.TAB &&
+                            $(this).autocomplete("instance").menu.active) {
+                            event.preventDefault();
+                        }
+                    })
+                    .autocomplete({
+                        minLength: 0,
+                        source: function (request, response) {
+                            // delegate back to autocomplete, but extract the last term
+                            response($.ui.autocomplete.filter(
+                                aGenres, extractLast(request.term)));
+                        },
+                        focus: function () {
+                            // prevent value inserted on focus
+                            return false;
+                        },
+                        select: function (event, ui) {
+                            var terms = split(this.value);
+                            // remove the current input
+                            terms.pop();
+                            // add the selected item
+                            terms.push(ui.item.value);
+                            // add placeholder to get the comma-and-space at the end
+                            terms.push("");
+                            this.value = terms.join(", ");
+                            return false;
+                        }
+                    });
+
+                $("#keyword1")
+                // don't navigate away from the field on tab when selecting an item
+                    .on("keydown", function (event) {
+                        if (event.keyCode === $.ui.keyCode.TAB &&
+                            $(this).autocomplete("instance").menu.active) {
+                            event.preventDefault();
+                        }
+                    })
+                    .autocomplete({
+                        minLength: 0,
+                        source: function (request, response) {
+                            // delegate back to autocomplete, but extract the last term
+                            response($.ui.autocomplete.filter(
+                                aKeywords, extractLast(request.term)));
+                        },
+                        focus: function () {
+                            // prevent value inserted on focus
+                            return false;
+                        },
+                        select: function (event, ui) {
+                            var terms = split(this.value);
+                            // remove the current input
+                            terms.pop();
+                            // add the selected item
+                            terms.push(ui.item.value);
+                            // add placeholder to get the comma-and-space at the end
+                            terms.push("");
+                            this.value = terms.join(", ");
+                            return false;
+                        }
+                    });
+            }
+        );
+
+
         function add() {
             var title = document.getElementById("title").value;
-            var actor1 = document.getElementById("actor1").value;
+            var actor1 = document.getElementById("actor1").value.split(",");
             var actor2 = document.getElementById("actor2").value;
-            var keyword1 = document.getElementById("keyword1").value;
+            var keyword1 = document.getElementById("keyword1").value.split(",");
             var keyword2 = document.getElementById("keyword2").value;
-            var genre1 = document.getElementById("genre1").value;
+            var genre1 = document.getElementById("genre1").value.split(",");
             var genre2 = document.getElementById("genre2").value;
             var producer = document.getElementById("producer").value;
             var director = document.getElementById("director").value;
             var writer = document.getElementById("writer").value;
             var year = document.getElementById("year").value;
 
-            var data={
-                'movie':{'title':title,'productionDate':year},
-                'actors':[{'name':actor1},{'name':actor2}],
-                'keywords':[{'name':keyword1},{'name':keyword2}],
-                'genres':[{'name':genre1},{'name':genre2}],
-                'producer':{'name':producer},
-                'director':{'name':director},
-                'writer':{'name':writer}
+            var data = {
+                'movie': {'title': title, 'productionDate': new Date(year).getTime()},
+                'actors': [],
+                'keywords': [],
+                'genres': [],
+                'producer': 0,
+                'director': 0,
+                'writer': 0
             };
 
+            $.each(inputPeople, function (i, item) {
+                if (director == item.name) {
+                    data['director'] = {'id': item.id};
+                }
+                if (writer == item.name) {
+                    data['writer'] = {'id': item.id};
+                }
+                if (producer == item.name) {
+                    data['producer'] = {'id': item.id};
+                }
+            });
+
+
+            $.each(actor1, function (i, item1) {
+                $.each(inputPeople, function (i, item2) {
+                    if (item1 == item2.name) {
+                        data['actors'].push({"id": item2.id});
+                    }
+                });
+            });
+            $.each(keyword1, function (i, item1) {
+                $.each(inputKeywords, function (i, item2) {
+                    if (item1 == item2.name) {
+                        data['keywords'].push({"id": item2.id});
+                    }
+                });
+            });
+
+            $.each(genre1, function (i, item1) {
+                $.each(inputGenres, function (i, item2) {
+                    if (item1 == item2.name) {
+                        data['genres'].push({"id": item2.id});
+                    }
+                });
+            });
+
             var xhr = new XMLHttpRequest();
-            xhr.open("POST","/movie/add",true);
+            xhr.open("POST", "/movie/add", true);
             xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
 
             xhr.send(JSON.stringify(data));
@@ -43,19 +222,19 @@
     </script>
 </head>
 <body>
-    <div>
-        <input type="text" id="title">  title<br>
-        <input type="text" id="year">  year<br>
-        <input type="text" id="genre1">  genre<br>
-        <input type="text" id="genre2">  genre<br>
-        <input type="text" id="keyword1">  keyword<br>
-        <input type="text" id="keyword2">  keyword<br>
-        <input type="text" id="actor1">  actor<br>
-        <input type="text" id="actor2">  actor<br>
-        <input type="text" id="writer">  writer<br>
-        <input type="text" id="producer">  producer<br>
-        <input type="text" id="director">  director<br>
-        <button onclick="add()" type="submit">add movie</button>
-    </div>
+<div>
+    <input type="text" id="title"> title<br>
+    <input type="text" id="year"> year<br>
+    <input type="text" id="genre1"> genre<br>
+    <input type="text" id="genre2"> genre<br>
+    <input type="text" id="keyword1"> keyword<br>
+    <input type="text" id="keyword2"> keyword<br>
+    <input type="text" id="actor1"> actor<br>
+    <input type="text" id="actor2"> actor<br>
+    <input type="text" id="writer"> writer<br>
+    <input type="text" id="producer"> producer<br>
+    <input type="text" id="director"> director<br>
+    <button onclick="add()" type="submit">add movie</button>
+</div>
 </body>
 </html>
