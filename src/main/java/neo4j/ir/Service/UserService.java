@@ -212,6 +212,7 @@ public class UserService {
         List<User> suggestions = convertToUser(sr);
 
         String query2 = "MATCH (u:USER)-[*]->(n:USER{userName:{userName}})" +
+                " WHERE not (u)-[:IS_FRIEND]->(n)" +
                 "return distinct u.userName as userName" +
                 ", u.lastName as lastName" +
                 ", u.firstName as firstName" +

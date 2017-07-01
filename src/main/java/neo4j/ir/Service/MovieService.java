@@ -53,35 +53,34 @@ public class MovieService {
                         "imageURL", m.getImageURL(),
                         "rate", m.getRate(),
                         "summary", m.getSummary()));
-        int movieID = sr.next().get("id").asInt();
+//        String movieID = sr.next().get("title").asString();
+        String movieID = m.getTitle();
         if (dto.getDirector() != null) {
-            addDirector(dto.getDirector().getId(), movieID);
+            addDirector(dto.getDirector().getName(), movieID);
         }
         if (dto.getWriter() != null) {
-            addWriter(dto.getWriter().getId(), movieID);
+            addWriter(dto.getWriter().getName(), movieID);
         }
 
         if (dto.getProducer() != null) {
-            addProducer(dto.getProducer().getId(), movieID);
+            addProducer(dto.getProducer().getName(), movieID);
         }
-
-
 
         if (dto.getGenres() != null)
             for (Genre g :
                     dto.getGenres()) {
-                addGenre(movieID, g.getId());
+                addGenre(movieID, g.getName());
             }
 
         if(dto.getActors() != null)
             for (Person person :
                     dto.getActors()) {
-                addActor(person.getId(), movieID);
+                addActor(person.getName(), movieID);
             }
 
         if (dto.getKeywords() != null)
             for (Keyword keyword : dto.getKeywords()) {
-                addKeyword(movieID, keyword.getId());
+                addKeyword(movieID, keyword.getName());
             }
         session.close();
     }
@@ -104,49 +103,55 @@ public class MovieService {
         session.close();
     }
 
-    private void relation(int id1, String type1, int id2, String type2, String relationType, Map<String, Object> properties) {
+    private void relation(String id1, String type1, String id2, String type2, String relationType, Map<String, Object> properties) {
         Session session = driver.session();
         String prop = null;
         for (String key : properties.keySet()) {
             prop += key + ":" + properties.get(key) + ", ";
         }
-        String query;
-        if (prop != null) {
-            prop = prop.substring(0, prop.length() - 2);
+        String k1 = "name",k2 ="name";
+        if(type1.equals("MOVIE"))
+            k1 = "title";
+        if(type2.equals("MOVIE"))
+            k2 = "title";
 
-            query = "MATCH (t1:" + type1 + "), (t2:" + type2 + ")" +
-                    " WHERE ID(t1) = {id1} and ID(t2) = {id2} " +
-                    "CREATE (t1)-[r:" + relationType + "{" + prop + "}]->(t2) return ID(r) as id";
-        } else {
-            query = "MATCH (t1:" + type1 + "), (t2:" + type2 + ")" +
-                    " WHERE ID(t1) = {id1} and ID(t2) = {id2} " +
-                    "CREATE (t1)-[r:" + relationType + "]->(t2) return ID(r) as id";
-        }
+        String query;
+
+            query = "MATCH (t1:" + type1 +"{"+ k1 +":{id1}}" + "), (t2:" + type2 + "{"+k2+":{id2}})" +
+                    " " +
+                    "CREATE (t1)-[r:" + relationType + "]->(t2)";
+
+        System.out.println(query);
+        System.out.println(id1);
+        System.out.println(id2);
+
         session.run(query, parameters("id1", id1, "id2", id2));
         session.close();
     }
 
-    private void addProducer(int id, int movieID) {
+    private void addProducer(String id, String movieID) {
         relation(id, "PERSON", movieID, "MOVIE", "PRODUCED", new HashMap<>());
     }
 
-    private void addKeyword(int movieID, int id) {
+    private void addKeyword(String movieID, String id) {
         relation(movieID, "MOVIE", id, "KEYWORD", "HAS_KEYWORD", new HashMap<>());
     }
 
-    public void addDirector(int directorId, int movieId) {
+    public void addDirector(String directorId, String movieId) {
+        System.out.println(directorId);
+        System.out.println(movieId);
         relation(directorId, "PERSON", movieId, "MOVIE", "DIRECTED_IN", new HashMap<>());
     }
 
-    public void addActor(int actorId, int movieId) {
+    public void addActor(String actorId, String movieId) {
         relation(actorId, "PERSON", movieId, "MOVIE", "ACTED_IN", new HashMap<>());
     }
 
-    public void addWriter(int writerId, int movieId) {
+    public void addWriter(String writerId, String movieId) {
         relation(writerId, "PERSON", movieId, "MOVIE", "WRITER_OF", new HashMap<>());
     }
 
-    public void addGenre(int movieId, int genreId) {
+    public void addGenre(String movieId, String genreId) {
         relation(movieId, "MOVIE", genreId, "GENRE", "HAS_GENRE", new HashMap<>());
     }
 
