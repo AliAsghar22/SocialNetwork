@@ -3,9 +3,44 @@
 <head>
     <meta charset="UTF-8"/>
     <title>movies</title>
+    <script>
+        function search() {
+            var name = document.getElementById("name").value;
+            var actor = document.getElementById("actor").value;
+            var genre = document.getElementById("genre").value;
+            var director = document.getElementById("director").value;
+            var writer = document.getElementById("writer").value;
+            var year = document.getElementById("year").value;
+
+            var query = "";
+            if(name.length!=0)
+                query += ("title="+name);
+            if(actor.length!=0)
+                query += ("actor="+actor);
+            if(genre.length!=0)
+                query += ("genre="+genre);
+            if(director.length!=0)
+                query += ("director="+director);
+            if(writer.length!=0)
+                query += ("writer="+writer);
+            if(year.length!=0)
+                query += ("year="+year);
+
+            window.location.href="/movie/list?" + query;
+        }
+    </script>
 </head>
 
 <body>
+    <div style="text-align: center">
+        <input type="text" id="name"/>  title<br/>
+        <input type="text" id="year"/>  year<br/>
+        <input type="text" id="genre"/>  genre<br/>
+        <input type="text" id="actor"/>  actor<br/>
+        <input type="text" id="writer"/>  writer<br/>
+        <input type="text" id="director"/>  director<br/>
+        <button onclick="search()" type="submit">Search</button>
+    </div>
     <table align="center" style="padding-top: 2%">
         <tr>
             <th>Search Result</th>

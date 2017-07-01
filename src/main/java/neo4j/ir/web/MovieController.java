@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -107,9 +108,28 @@ public class MovieController {
     }
 
     @GetMapping("/list")
-    public String list(Map<String,Object> model)
+    public String list(Map<String,Object> model,
+     @RequestParam(value="title", required=false) String title,
+     @RequestParam(value="year", required = false) String year,
+     @RequestParam(value="actor", required=false) String actor,
+     @RequestParam(value="genre", required = false) String genre,
+     @RequestParam(value="director", required=false) String direcor,
+     @RequestParam(value="writer", required = false) String writer)
     {
-        model.put("searchResult",movieService.getAll());
+
+        MovieSearchDTO dto = new MovieSearchDTO();
+        dto.setTitle(title);
+        dto.setWriterName(writer);
+        dto.setDirectorName(direcor);
+        dto.setProductionYear(year);
+        List<String> actors = new ArrayList<>();
+        List<String> genres = new ArrayList<>();
+        actors.add(actor);
+        genres.add(genre);
+        dto.setActorNames(actors);
+        dto.setGenres(genres);
+
+        model.put("searchResult",movieService.search(dto));
         model.put("top5",movieService.getTop5());
         model.put("recent",movieService.getLatest());
 
