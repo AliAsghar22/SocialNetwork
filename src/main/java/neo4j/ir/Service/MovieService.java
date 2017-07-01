@@ -9,6 +9,7 @@ import neo4j.ir.web.dto.MovieSearchDTO;
 import org.neo4j.driver.v1.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import sun.java2d.pipe.ValidatePipe;
 
 import java.util.*;
 
@@ -52,34 +53,35 @@ public class MovieService {
                         "imageURL", m.getImageURL(),
                         "rate", m.getRate(),
                         "summary", m.getSummary()));
-//        String movieID = sr.next().get("title").asString();
-        String movieID = m.getTitle();
+        int movieID = sr.next().get("id").asInt();
         if (dto.getDirector() != null) {
-            addDirector(dto.getDirector().getName(), movieID);
+            addDirector(dto.getDirector().getId(), movieID);
         }
         if (dto.getWriter() != null) {
-            addWriter(dto.getWriter().getName(), movieID);
+            addWriter(dto.getWriter().getId(), movieID);
         }
 
         if (dto.getProducer() != null) {
-            addProducer(dto.getProducer().getName(), movieID);
+            addProducer(dto.getProducer().getId(), movieID);
         }
+
+
 
         if (dto.getGenres() != null)
             for (Genre g :
                     dto.getGenres()) {
-                addGenre(movieID, g.getName());
+                addGenre(movieID, g.getId());
             }
 
         if(dto.getActors() != null)
             for (Person person :
                     dto.getActors()) {
-                addActor(person.getName(), movieID);
+                addActor(person.getId(), movieID);
             }
 
         if (dto.getKeywords() != null)
             for (Keyword keyword : dto.getKeywords()) {
-                addKeyword(movieID, keyword.getName());
+                addKeyword(movieID, keyword.getId());
             }
         session.close();
     }
@@ -102,55 +104,49 @@ public class MovieService {
         session.close();
     }
 
-    private void relation(String id1, String type1, String id2, String type2, String relationType, Map<String, Object> properties) {
+    private void relation(int id1, String type1, int id2, String type2, String relationType, Map<String, Object> properties) {
         Session session = driver.session();
         String prop = null;
         for (String key : properties.keySet()) {
             prop += key + ":" + properties.get(key) + ", ";
         }
-        String k1 = "name",k2 ="name";
-        if(type1.equals("MOVIE"))
-            k1 = "title";
-        if(type2.equals("MOVIE"))
-            k2 = "title";
-
         String query;
+        if (prop != null) {
+            prop = prop.substring(0, prop.length() - 2);
 
-            query = "MATCH (t1:" + type1 +"{"+ k1 +":{id1}}" + "), (t2:" + type2 + "{"+k2+":{id2}})" +
-                    " " +
-                    "CREATE (t1)-[r:" + relationType + "]->(t2)";
-
-        System.out.println(query);
-        System.out.println(id1);
-        System.out.println(id2);
-
+            query = "MATCH (t1:" + type1 + "), (t2:" + type2 + ")" +
+                    " WHERE ID(t1) = {id1} and ID(t2) = {id2} " +
+                    "CREATE (t1)-[r:" + relationType + "{" + prop + "}]->(t2) return ID(r) as id";
+        } else {
+            query = "MATCH (t1:" + type1 + "), (t2:" + type2 + ")" +
+                    " WHERE ID(t1) = {id1} and ID(t2) = {id2} " +
+                    "CREATE (t1)-[r:" + relationType + "]->(t2) return ID(r) as id";
+        }
         session.run(query, parameters("id1", id1, "id2", id2));
         session.close();
     }
 
-    private void addProducer(String id, String movieID) {
+    private void addProducer(int id, int movieID) {
         relation(id, "PERSON", movieID, "MOVIE", "PRODUCED", new HashMap<>());
     }
 
-    private void addKeyword(String movieID, String id) {
+    private void addKeyword(int movieID, int id) {
         relation(movieID, "MOVIE", id, "KEYWORD", "HAS_KEYWORD", new HashMap<>());
     }
 
-    public void addDirector(String directorId, String movieId) {
-        System.out.println(directorId);
-        System.out.println(movieId);
+    public void addDirector(int directorId, int movieId) {
         relation(directorId, "PERSON", movieId, "MOVIE", "DIRECTED_IN", new HashMap<>());
     }
 
-    public void addActor(String actorId, String movieId) {
+    public void addActor(int actorId, int movieId) {
         relation(actorId, "PERSON", movieId, "MOVIE", "ACTED_IN", new HashMap<>());
     }
 
-    public void addWriter(String writerId, String movieId) {
+    public void addWriter(int writerId, int movieId) {
         relation(writerId, "PERSON", movieId, "MOVIE", "WRITER_OF", new HashMap<>());
     }
 
-    public void addGenre(String movieId, String genreId) {
+    public void addGenre(int movieId, int genreId) {
         relation(movieId, "MOVIE", genreId, "GENRE", "HAS_GENRE", new HashMap<>());
     }
 
@@ -180,8 +176,7 @@ public class MovieService {
                 " m.imageURL as imageURL," +
                 " m.productionDate as productionDate," +
                 " m.rate as rate," +
-                " m.tagline as tagline, " +
-                " m.summary as summary";
+                " m.tagline as tagline";
         StatementResult sr = s.run(query, parameters("title", title));
         Movie m = convertToMovies(sr).get(0);
         s.close();
@@ -197,8 +192,7 @@ public class MovieService {
                 " m.imageURL as imageURL," +
                 " m.productionDate as productionDate," +
                 " m.rate as rate," +
-                " m.tagline as tagline," +
-                " m.summary as summary";
+                " m.tagline as tagline";
         StatementResult sr = s.run(query);
         List<Movie> m = convertToMovies(sr);
         s.close();
@@ -243,8 +237,7 @@ public class MovieService {
                 " m.imageURL as imageURL," +
                 " m.productionDate as productionDate," +
                 " m.rate as rate," +
-                " m.tagline as tagline,"+
-                " m.summary as summary";
+                " m.tagline as tagline";
         Session s = driver.session();
         List<Movie> movies = convertToMovies(s.run(query));
         s.close();
@@ -260,8 +253,7 @@ public class MovieService {
                 " m.imageURL as imageURL," +
                 " m.productionDate as productionDate," +
                 " m.rate as rate," +
-                " m.tagline as tagline," +
-                " m.summary as summary" +
+                " m.tagline as tagline" +
                 " ORDER BY rate desc" +
                 " LIMIT 5";
         StatementResult sr = s.run(query);
@@ -279,8 +271,7 @@ public class MovieService {
                 " m.imageURL as imageURL," +
                 " m.productionDate as productionDate," +
                 " m.rate as rate," +
-                " m.tagline as tagline,"+
-                " m.summary as summary" +
+                " m.tagline as tagline" +
                 " ORDER BY productionDate desc" +
                 " LIMIT 20";
         StatementResult sr = s.run(query);
@@ -299,7 +290,6 @@ public class MovieService {
                 " m.imageURL as imageURL," +
                 " m.productionDate as productionDate," +
                 " m.rate as rate," +
-                " m.summary as summary,"+
                 " m.tagline as tagline";
         StatementResult sr = s.run(query, parameters("id", movieId));
         Movie m = convertToMovies(sr).get(0);
@@ -343,8 +333,7 @@ public class MovieService {
                         " m.imageURL as imageURL," +
                         " m.productionDate as productionDate," +
                         " m.rate as rate," +
-                        " m.tagline as tagline,"+
-                        " m.summary as summary";
+                        " m.tagline as tagline";
         StatementResult sr = s.run(query, parameters("userName", userName));
         List<Movie> movies = convertToMovies(sr);
         s.close();
@@ -365,8 +354,7 @@ public class MovieService {
                         " m.imageURL as imageURL," +
                         " m.productionDate as productionDate," +
                         " m.rate as rate," +
-                        " m.tagline as tagline,"+
-                        " m.summary as summary";
+                        " m.tagline as tagline";
         StatementResult sr = s.run(query, parameters("userName", userName));
         List<Movie> movies = convertToMovies(sr);
         s.close();

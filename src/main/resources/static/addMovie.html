@@ -6,7 +6,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/>
-    <link rel="stylesheet" href="/resources/demos/style.css"/>
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
@@ -150,11 +149,8 @@
         function add() {
             var title = document.getElementById("title").value;
             var actor1 = document.getElementById("actor1").value.split(",");
-            var actor2 = document.getElementById("actor2").value;
             var keyword1 = document.getElementById("keyword1").value.split(",");
-            var keyword2 = document.getElementById("keyword2").value;
             var genre1 = document.getElementById("genre1").value.split(",");
-            var genre2 = document.getElementById("genre2").value;
             var producer = document.getElementById("producer").value;
             var director = document.getElementById("director").value;
             var writer = document.getElementById("writer").value;
@@ -164,10 +160,7 @@
                 'movie': {'title': title, 'productionDate': new Date(year).getTime()},
                 'actors': [],
                 'keywords': [],
-                'genres': [],
-                'producer': 0,
-                'director': 0,
-                'writer': 0
+                'genres': []
             };
 
             $.each(inputPeople, function (i, item) {
